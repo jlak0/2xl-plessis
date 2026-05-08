@@ -15,10 +15,10 @@
 }
 
 html {
-  --bg: #f2f2f0;
-  --ink: #989490;
-  --soft: #b3b0ad;
-  --glass: #8080804d;
+  --bg: #f4f1ea;
+  --ink: #31483b;
+  --soft: #9a6d45;
+  --glass: #31483b66;
   --glass-dark: #0003;
   --glass-blur: 5px;
   --glass-shine: linear-gradient(var(--degshine, 156deg), rgb(255 255 255 / 40%) 2.12%, rgb(255 255 255 / 0%) 39%, rgb(255 255 255 / 0%) 54.33%, rgb(255 255 255 / 10%) 93.02%);
@@ -1487,11 +1487,30 @@ video {
   justify-content: center;
 }
 
-.foot_tp img {
-  width: min(980px, 100%);
-  height: auto;
-  margin: 0 auto;
-  object-fit: contain;
+.foot_brand {
+  gap: clamp(18px, 3vw, 42px);
+  color: var(--ink);
+}
+
+.foot_brand span {
+  width: clamp(86px, 12vw, 180px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+}
+
+.foot_brand svg {
+  width: 62%;
+  fill: currentColor;
+}
+
+.foot_brand b {
+  font-size: clamp(72px, 13vw, 210px);
+  line-height: .86;
+  letter-spacing: 0;
+  text-align: center;
 }
 
 .foot_bp {

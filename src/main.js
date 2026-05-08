@@ -17,8 +17,9 @@ const app = document.querySelector("#app");
 
 const logo = `
   <svg viewBox="0 0 28 28" aria-hidden="true">
-    <path d="M27.812 17.831c-.009 2.631-1.801 4.724-4.167 5.252-.508.111-1.016.157-1.533.12-1.303-.102-2.43-.602-3.363-1.519-.758-.741-1.247-1.63-1.469-2.658-.111-.482-.194-.972-.296-1.454-.074-.343-.138-.695-.249-1.028-.129-.371-.323-.704-.619-.973-.249-.231-.545-.379-.859-.481-.37-.12-.758-.194-1.146-.269-.333-.065-.656-.129-.988-.194-.222-.047-.453-.084-.675-.149-1.866-.528-3.317-2.056-3.751-3.945-.111-.528-.148-1.075-.102-1.621.102-1.213.564-2.288 1.395-3.186.785-.862 1.765-1.399 2.901-1.63.527-.102 1.062-.121 1.598-.065 2.134.231 4.019 1.769 4.582 4.02.046.176.074.361.111.537.111.537.222 1.065.333 1.602.065.315.166.621.314.899.102.194.24.37.406.528.12.12.259.222.407.305.148.083.305.148.462.204.388.13.785.194 1.183.278.342.065.684.139 1.026.204.268.046.536.111.794.194 1.82.584 3.197 2.112 3.585 3.974.074.361.111.732.12 1.056Z" />
-    <path d="M0 17.876c0-2.908 2.337-5.335 5.331-5.335 2.938 0 5.321 2.38 5.321 5.344-.009 3.001-2.439 5.335-5.34 5.326C2.365 23.211-.009 20.812 0 17.876Z" />
+    <path d="M4.2 12.7c.5-5 4.3-8.5 9.8-8.5s9.3 3.5 9.8 8.5h-2.7c-.5-3.5-3-5.9-7.1-5.9s-6.6 2.4-7.1 5.9H4.2Z" />
+    <path d="M2.4 14.7h23.2c-.8 5.5-5.4 9.1-11.6 9.1S3.2 20.2 2.4 14.7Z" />
+    <path d="M7.3 11.3h13.4v2.1H7.3v-2.1Z" />
   </svg>`;
 
 function media(item, className = "") {
@@ -38,15 +39,15 @@ function button(label, href = "#", extra = "") {
 function nav() {
   return `
     <nav class="nav grid-vw">
-      <h1 class="nav_logo"><a href="/" data-link aria-label="Espacio La Nube">${logo}</a></h1>
+      <h1 class="nav_logo"><a href="/" data-link aria-label="Mesa Buffet">${logo}</a></h1>
       <div class="nav_menu">
-        <a href="/work" data-link>Work</a>
+        <a href="/work" data-link>Stations</a>
         <a href="/info" data-link>Info</a>
         <button type="button" data-contact>Contact</button>
       </div>
       <div class="nav_contact" data-contact-panel>
-        <p>Mail <a href="mailto:info@espaciolanube.com">info@espaciolanube.com</a></p>
-        <p>Phone <a href="tel:+34667942518">+34 667 94 25 18</a></p>
+        <p>Mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
+        <p>Phone <a href="tel:+15550101988">+1 555 010 1988</a></p>
       </div>
     </nav>`;
 }
@@ -55,25 +56,26 @@ function footer() {
   return `
     <footer class="foot">
       <div class="foot_h">
-        <div class="grid foot_tp">
-          <img src="${asset("images/logofooter.png")}" alt="Nube logo" />
+        <div class="grid foot_tp foot_brand">
+          <span>${logo}</span>
+          <b>Mesa Buffet</b>
         </div>
         <div class="grid foot_bp">
           <form class="newsletter">
-            <label>Subscribe to our newsletter</label>
+            <label>Subscribe for weekly menus</label>
             <input type="email" placeholder="Enter your email" required />
             <button type="submit" aria-label="Subscribe">${logo}</button>
             <p class="newsletter_ok">Signup successful</p>
           </form>
           <div>
-            <a href="mailto:info@espaciolanube.com">info@espaciolanube.com</a>
-            <a href="tel:+34667942518">+34 667 94 25 18</a>
-            <a href="tel:+34618279634">+34 618 27 96 34</a>
+            <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a>
+            <a href="tel:+15550101988">+1 555 010 1988</a>
+            <a href="tel:+15550101989">+1 555 010 1989</a>
           </div>
-          <div><a href="/" data-link>Home</a><a href="/work" data-link>Work</a><a href="/info" data-link>Info</a></div>
-          <div><a href="https://www.instagram.com/espaciolanube/">Instagram</a><a href="https://www.linkedin.com/company/espaciolanube/">Linkedin</a><a href="https://vimeo.com/espaciolanube">Vimeo</a></div>
+          <div><a href="/" data-link>Home</a><a href="/work" data-link>Stations</a><a href="/info" data-link>Info</a></div>
+          <div><a href="/product/breakfast" data-link>Breakfast</a><a href="/product/hot-line" data-link>Lunch</a><a href="/product/dessert" data-link>Dessert</a></div>
           <p class="copy">All Rights Reserved © 2026</p>
-          <a href="https://anaudienceofone.co/">Designed by An Audience of One ®</a>
+          <a href="/">Fresh self-service dining</a>
         </div>
       </div>
     </footer>`;
@@ -83,14 +85,14 @@ function cookieUi() {
   return `
     <div class="coo" data-cookie>
       <div class="coo_btm">
-        <p>Our cookies help things flow</p>
+        <p>Our cookies help service flow</p>
         <button type="button" data-cookie-accept>Accept</button>
         <button type="button" data-cookie-manage>Manage</button>
       </div>
       <div class="modal cookie_modal" data-cookie-modal>
         <div class="modal_h">
           <h2>Cookie settings</h2>
-          <p>Mandatory cookies are always active. Analytics cookies are optional in this clone.</p>
+          <p>Mandatory cookies are always active. Analytics cookies are optional in this demo.</p>
           <label class="toggle"><input type="checkbox" /> Analytics cookies</label>
           ${button("Accept Selection", "#", "modal-close")}
           ${button("Accept All", "#", "modal-close")}
@@ -165,7 +167,7 @@ function homeCardsStack(items) {
     <section class="home_cards">
       <div class="grid">
         <div class="home_cards_tt reveal">
-          <h2 class="h1">Explore Our Nubes</h2>
+          <h2 class="h1">Explore Our Stations</h2>
         </div>
         <div class="home_cards_stck">
           <div class="home_cards_sld reveal" data-card-stack>
@@ -235,14 +237,14 @@ function stackedCases() {
       <div class="grid home_stck_h">
         <div class="txt">
           <div class="txt_el A">
-            <h2 class="h1">Unforgettable experiences</h2>
-            <h2 class="h1">Made with Nube</h2>
-            ${button("Contact us", "mailto:info@espaciolanube.com")}
+            <h2 class="h1">Fresh choices</h2>
+            <h2 class="h1">Made for every plate</h2>
+            ${button("Contact us", "mailto:hello@mesabuffet.example")}
           </div>
           <div class="txt_el">
-            <h2 class="h1">Ephemeral spaces</h2>
-            <h2 class="h1">Built in the air</h2>
-            ${button("Start a project", "mailto:info@espaciolanube.com")}
+            <h2 class="h1">Easy flow</h2>
+            <h2 class="h1">From counter to table</h2>
+            ${button("Plan a visit", "mailto:hello@mesabuffet.example")}
           </div>
         </div>
       </div>
@@ -261,8 +263,8 @@ function stackedCases() {
 function homePage() {
   return `
     <main class="home">
-      ${hero({ title: "Inflatable Design Experiences", slides: homeHero })}
-      ${textBlock("Espacio La Nube is an ephemeral architecture studio that transcends spatial experience. We create dreamlike environments that spark emotion, turning bold ideas into immersive inflatable realities.", "anchorHome-1")}
+      ${hero({ title: "Self-Service Buffet Dining", slides: homeHero, cta: "See stations" })}
+      ${textBlock("Mesa Buffet is a bright, modern self-service restaurant built around fresh stations, steady replenishment and the freedom to compose every plate your way.", "anchorHome-1")}
       ${featureSlider(homeSlider)}
       ${homeCardsStack(homeCards)}
       ${stackedCases()}
@@ -273,13 +275,13 @@ function homePage() {
 function workPage() {
   return `
     <main class="work">
-      ${cardsSection("Explore Our Nubes", "A living archive of our most iconic spatial installations. Each one unique in form, scale, and conceptual intent.", products, { filters: ["Yard", "Single layer", "Double layer", "Rental"], collapsed: true })}
+      ${cardsSection("Explore Our Stations", "A practical map of the buffet: breakfast, fresh bar, hot dishes, global counters, live grill, drinks and dessert.", products, { filters: ["Breakfast", "Fresh", "Hot food", "Dinner", "Family"], collapsed: true })}
       ${featureSlider(workSteps, "work_slider")}
       <section class="method grid-vw reveal">
-        <h2 class="h1">How we work</h2>
-        <p class="p1">The Life Cycle of a Nube. A seven-step method shaped with precision and imagination.</p>
+        <h2 class="h1">How service flows</h2>
+        <p class="p1">A seven-step buffet rhythm that keeps counters full, dining calm and choices clear.</p>
         <div class="method_grid">
-          ${["Concept", "Design", "Engineering", "Production", "Transport", "Assembly", "Re-use"].map((step, index) => `<span><b>${String(index + 1).padStart(2, "0")}</b>${step}</span>`).join("")}
+          ${["Prep", "Open", "Guide", "Replenish", "Reset", "Refresh", "Close"].map((step, index) => `<span><b>${String(index + 1).padStart(2, "0")}</b>${step}</span>`).join("")}
         </div>
       </section>
       ${footer()}
@@ -287,61 +289,61 @@ function workPage() {
 }
 
 function infoPage() {
-  const words = ["Architecture", "Design", "Innovation", "Power", "Safety", "Future", "Wonder", "Creativity", "Flexibility", "Beauty", "Simplicity", "Lightness"];
+  const words = ["Breakfast", "Freshness", "Warmth", "Choice", "Coffee", "Salads", "Grill", "Dessert", "Family", "Speed", "Comfort", "Variety"];
   return `
     <main class="about">
       <section class="about_intro">
         <div class="grid-vw about_intro_grid">
           <div class="word_roll">${words.map((word) => `<span class="h1">${word}</span>`).join("")}</div>
-          <div><span class="h1">is in the air</span></div>
+          <div><span class="h1">is on the table</span></div>
         </div>
       </section>
-      ${textBlock("Espacio La Nube is an ephemeral architecture studio based in Madrid, founded in 2016. We draw inspiration from Mediterranean roots: nature, salt flats and Andalusian patios with lush vegetation.")}
-      ${featureSlider([{ image: "images/Cloud903MiguelngelMaurecopia.jpg.webp", title: "Our Nubes are monumental sculptures refined into minimalist art, a subtle nod to the ephemeral architecture of the 1970s" }])}
-      ${cardsSection("Our team", "We develop projects that combine creativity, innovation, and sensitivity to the environment.", team)}
+      ${textBlock("Mesa Buffet is designed for everyday abundance: a clean dining room, generous counters, clear movement and freshly prepared dishes that stay approachable from opening to close.")}
+      ${featureSlider([{ image: "images/generated/buffet-layout.png", title: "Every station is arranged around quick decisions, easy refills and comfortable circulation" }])}
+      ${cardsSection("Our team", "Kitchen and dining-room crews work together so the buffet feels full, fresh and easy to use.", team)}
       ${featureSlider(clients.map((item) => ({ image: item.image, title: item.title, text: item.text })), "cards_slider")}
       ${cardsSection("News & Updates", "", [
-        { image: "images/NUBE_08_2.jpg.webp", name: "Press", title: "American's Cup", description: "An inflatable design structure for San Miguel.", href: "/product/nube08" },
-        { image: "images/NUBE_02_9.jpg.webp", name: "Awards", title: "COAM Awards 2017", description: "Award winner for ephemeral architecture.", href: "https://www.archdaily.com/" },
-        { image: "images/NUBE_01_12.jpg.webp", name: "Clients", title: "Eventoplus", description: "How do good ideas smell?", href: "https://www.eventoplus.com/" }
-      ], { filters: ["Press", "Awards", "Clients"] })}
+        { image: "images/generated/buffet-global.png", name: "Menu", title: "World Table Weekend", description: "Rotating global dishes join the dinner buffet.", href: "/product/world-table" },
+        { image: "images/generated/buffet-breakfast.png", name: "Morning", title: "Early Breakfast", description: "Fresh coffee, pastries and fruit from 7am.", href: "/product/breakfast" },
+        { image: "images/generated/buffet-dessert.png", name: "Dessert", title: "Sweet Counter", description: "Small-format desserts refreshed through service.", href: "/product/dessert" }
+      ], { filters: ["Menu", "Morning", "Dessert"] })}
       ${footer()}
     </main>`;
 }
 
 function productPage(product) {
-  const gallery = product.slug === "nube02" ? productGallery : [
+  const gallery = product.slug === "hot-line" ? productGallery : [
     { type: "image", src: product.image, alt: product.name },
-    { type: "image", src: "images/NUBE01.jpg.webp", alt: product.name },
-    { type: "video", src: "videos/NUBEHeader01.mp4", thumb: "images/SMNUBE08.jpg.webp", alt: product.name }
+    { type: "image", src: "images/generated/buffet-hero.png", alt: product.name },
+    { type: "image", src: "images/generated/buffet-layout.png", alt: product.name }
   ];
   return `
     <main class="product">
-      ${hero({ eyebrow: product.name, title: product.title, slides: gallery, cta: `Rent ${product.name}`, href: "mailto:info@espaciolanube.com", product: true })}
-      ${textBlock("A threshold between the earthly and the ethereal. A habitable sculpture where light, air and material create an immersive temporary venue.")}
+      ${hero({ eyebrow: product.name, title: product.title, slides: gallery, cta: `Ask about ${product.name}`, href: "mailto:hello@mesabuffet.example", product: true })}
+      ${textBlock("A station built for choice, speed and freshness. Pick a plate, follow the counter and build the meal that fits your appetite.")}
       ${featureSlider(productDetails)}
       <section class="product_features grid-vw reveal">
         <div class="top">
-          <h2 class="h1">Float through the details</h2>
-          <p class="p1">Spin It. Zoom It. Love It.</p>
+          <h2 class="h1">Station details</h2>
+          <p class="p1">Capacity, flow and service notes for this counter.</p>
         </div>
         <div class="render">
-          <img src="${asset(product.slug === "nube02" ? "images/NUBE02_PLANO.png.webp" : product.image)}" alt="${product.name} plan" />
+          <img src="${asset(product.slug === "hot-line" ? "images/generated/buffet-layout.png" : product.image)}" alt="${product.name} station detail" />
           <button type="button" class="plus" data-feature-modal>+</button>
         </div>
         <div class="btm">
-          ${button("Features", "#", "features-open")}
-          <a class="Abtn" href="${asset("docs/NUBEDossier02EN.pdf")}" target="_blank"><span class="Abtn_h"><span class="Abtn_t">Download dossier</span></span></a>
+          ${button("Details", "#", "features-open")}
+          <a class="Abtn" href="mailto:hello@mesabuffet.example"><span class="Abtn_h"><span class="Abtn_t">Plan a group visit</span></span></a>
         </div>
       </section>
       ${featureSlider(homeCards.map((item) => ({ image: item.image, title: item.title, text: item.description })), "cards_slider")}
-      <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Design your own Nube</p>${button("Request a quote", "mailto:info@espaciolanube.com")}</div></section>
-      ${cardsSection("Explore more Nubes", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
+      <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Plan your next meal</p>${button("Contact the restaurant", "mailto:hello@mesabuffet.example")}</div></section>
+      ${cardsSection("Explore more stations", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
       <div class="modal feature_modal">
         <div class="modal_h">
-          <h2>${product.name} Features</h2>
-          <img src="${asset(product.slug === "nube02" ? "images/NUBE02_PLANO.png.webp" : product.image)}" alt="${product.name}" />
-          <ul>${["Capacity", "Exterior measurements", "Interior area", "Maximum height"].map((label, index) => `<li><span>${label}</span><b>${product.stats[index]}</b></li>`).join("")}</ul>
+          <h2>${product.name} Details</h2>
+          <img src="${asset(product.slug === "hot-line" ? "images/generated/buffet-layout.png" : product.image)}" alt="${product.name}" />
+          <ul>${["Service window", "Counter setup", "Main offer", "Guest note"].map((label, index) => `<li><span>${label}</span><b>${product.stats[index]}</b></li>`).join("")}</ul>
           <button class="modal_x" type="button" aria-label="Close">×</button>
         </div>
       </div>

@@ -1,218 +1,220 @@
 export const asset = (path) => `/assets/${path}`;
 
+const img = (name) => `images/generated/${name}.png`;
+
 export const products = [
   {
-    slug: "nube01",
-    name: "Nube 01",
-    title: "Serenity is in the air",
-    description: "A natural refuge where time dilates.",
-    image: "images/EspacioLaNube_Nube01Card.jpg.webp",
-    categories: ["Single layer", "Rental"],
-    stats: ["120 - 250 people", "18x12m", "160sq m", "6m"]
+    slug: "breakfast",
+    name: "Morning Bar",
+    title: "Breakfast, ready when you are",
+    description: "Pastries, fruit, eggs, yogurt and coffee laid out for a bright start.",
+    image: img("buffet-breakfast"),
+    categories: ["Breakfast", "Fresh", "All-day"],
+    stats: ["07:00 - 11:00", "24 hot trays", "Fresh fruit", "Coffee included"]
   },
   {
-    slug: "nube02",
-    name: "Nube 02",
-    title: "Void is in the air",
-    description: "The sky inside the Nube.",
-    image: "images/EspacioLaNubeNube02Card.png.webp",
-    categories: ["Double layer", "Rental"],
-    stats: ["250 - 500 people", "20x14.6m", "240sq m", "8m"]
+    slug: "salad",
+    name: "Garden Island",
+    title: "Freshness by the bowl",
+    description: "Greens, grains, roasted vegetables and dressings arranged for quick custom plates.",
+    image: img("buffet-salad"),
+    categories: ["Vegetarian", "Fresh", "Lunch"],
+    stats: ["18 toppings", "6 dressings", "Vegan options", "Cold line"]
   },
   {
-    slug: "nube03",
-    name: "Nube 03",
-    title: "Geometry is in the air",
-    description: "A forest that breathes movement.",
-    image: "images/EspacioLaNube_Nube03Card.jpg.webp",
-    categories: ["Yard", "Single layer"],
-    stats: ["80 - 180 people", "14x14m", "130sq m", "5m"]
+    slug: "hot-line",
+    name: "Hot Line",
+    title: "Comfort served in motion",
+    description: "A rotating spread of warm mains, sides and chef-replenished classics.",
+    image: img("buffet-hotline"),
+    categories: ["Hot food", "Lunch", "Dinner"],
+    stats: ["12 mains", "8 sides", "Chef refreshed", "Warm service"]
   },
   {
-    slug: "nube04",
-    name: "Nube 04",
-    title: "Infinity is in the air",
-    description: "An endless space for an infinity of possibilities.",
-    image: "images/EspacioLaNubeNube04Card.jpg.webp",
-    categories: ["Double layer", "Rental"],
-    stats: ["300 - 650 people", "32x18m", "420sq m", "8m"]
+    slug: "world-table",
+    name: "World Table",
+    title: "A passport on one plate",
+    description: "Mediterranean, Asian and seasonal specialties gathered in one generous counter.",
+    image: img("buffet-global"),
+    categories: ["Global", "Dinner", "Family"],
+    stats: ["5 cuisines", "Daily rotation", "Sauce bar", "Open kitchen"]
   },
   {
-    slug: "nube05",
-    name: "Nube 05",
-    title: "Canvas is in the air",
-    description: "A white canvas for art, light and performance.",
-    image: "images/EspacioLaNube_Nube05Card.jpg.webp",
-    categories: ["Single layer"],
-    stats: ["60 - 140 people", "12x10m", "95sq m", "5m"]
+    slug: "grill",
+    name: "Carving Grill",
+    title: "Fresh cuts, finished live",
+    description: "Roasts, grilled vegetables and protein specials sliced and served at the station.",
+    image: img("buffet-carving"),
+    categories: ["Hot food", "Dinner", "Chef station"],
+    stats: ["Live station", "3 proteins", "Grilled sides", "Peak hours"]
   },
   {
-    slug: "nube06",
-    name: "Nube 06",
-    title: "Sound is in the air",
-    description: "A music festival afterparty with a floating atmosphere.",
-    image: "images/EspacioLaNube_Nube06Card.jpg.webp",
-    categories: ["Yard", "Rental"],
-    stats: ["150 - 320 people", "20x12m", "210sq m", "6m"]
+    slug: "dessert",
+    name: "Dessert Counter",
+    title: "Small sweets, big finish",
+    description: "Tarts, cakes, mousse cups and fruit arranged for a flexible final course.",
+    image: img("buffet-dessert"),
+    categories: ["Dessert", "Family"],
+    stats: ["16 sweets", "Fruit tarts", "Chocolate bar", "Refilled often"]
   },
   {
-    slug: "nube07",
-    name: "Nube 07",
-    title: "Intimacy is in the air",
-    description: "Single Nubes that bring privacy to open-air programs.",
-    image: "images/EspacioLaNube_Nube07Card.jpg.webp",
-    categories: ["Single layer", "Yard"],
-    stats: ["20 - 80 people", "8x8m", "50sq m", "4m"]
+    slug: "beverage",
+    name: "Drinks Station",
+    title: "Coffee, juice and infused water",
+    description: "A self-service refreshment counter designed for easy flow and clean refills.",
+    image: img("buffet-beverage"),
+    categories: ["Drinks", "Breakfast", "All-day"],
+    stats: ["Juice carafes", "Espresso", "Infused water", "Glassware ready"]
   },
   {
-    slug: "nube08",
-    name: "Nube 08",
-    title: "Race is in the air",
-    description: "A travelling inflatable structure for San Miguel and the America's Cup.",
-    image: "images/EspacioLaNube_Nube08Card.jpg.webp",
-    categories: ["Custom", "Rental"],
-    stats: ["Brand activation", "24x8m", "Nomadic", "1 day setup"]
+    slug: "family-dining",
+    name: "Family Dining",
+    title: "Room for every appetite",
+    description: "Comfortable seating, easy circulation and a relaxed rhythm for groups of all sizes.",
+    image: img("buffet-family"),
+    categories: ["Family", "Lunch", "Dinner"],
+    stats: ["160 seats", "Wide aisles", "High chairs", "Group tables"]
   }
 ];
 
 export const homeHero = [
-  { type: "image", src: "images/NUBE01.jpg.webp", thumb: "images/SMNUBE01.jpg.webp", alt: "Exterior of Nube 01" },
-  { type: "video", src: "videos/NUBEHeader01.mp4", thumb: "images/SMNUBE08.jpg.webp", alt: "Behind the process" },
-  { type: "image", src: "images/NUBE08.jpg.webp", thumb: "images/SMNUBE08.jpg.webp", alt: "The tensors of a Nube" },
-  { type: "video", src: "videos/NUBEHeader.mp4", thumb: "images/SMNUBE_01_4.jpg.webp", alt: "Inflating a cloud" },
-  { type: "image", src: "images/NUBE_01_4.jpg.webp", thumb: "images/SMNUBE_01_4.jpg.webp", alt: "Inside the cloud" },
-  { type: "video", src: "videos/NUBEHeader05.mp4", thumb: "images/SMNUBE01.jpg.webp", alt: "Overview of a cloud" }
+  { type: "image", src: img("buffet-hero"), thumb: img("buffet-hero"), alt: "Modern self-service buffet restaurant" },
+  { type: "image", src: img("buffet-hotline"), thumb: img("buffet-hotline"), alt: "Hot buffet line with freshly replenished dishes" },
+  { type: "image", src: img("buffet-salad"), thumb: img("buffet-salad"), alt: "Fresh salad buffet island" },
+  { type: "image", src: img("buffet-dessert"), thumb: img("buffet-dessert"), alt: "Dessert buffet counter" },
+  { type: "image", src: img("buffet-family"), thumb: img("buffet-family"), alt: "Family dining room beside the buffet" },
+  { type: "image", src: img("buffet-beverage"), thumb: img("buffet-beverage"), alt: "Self-service beverage station" }
 ];
 
 export const homeSlider = [
   {
-    image: "images/NubeIVPaseoFestivalEEUU201827.jpg.webp",
-    title: "Lightweight sustainable materials tailored to each Nube"
+    image: img("buffet-layout"),
+    title: "Clear stations, wide aisles and a faster self-service flow"
   },
   {
-    image: "images/20210618_132623.jpg.webp",
-    title: "Well-designed, unique and safe temporary structures made in Spain"
+    image: img("buffet-kitchen"),
+    title: "Prepared fresh in small batches before every service"
   },
   {
-    image: "images/686e43a31b050_NubeIVJeepsterpartyMediaseet201711.jpg.webp",
-    title: "Shaped with the power of air leaving no trace behind"
+    image: img("buffet-global"),
+    title: "A daily-changing spread for breakfast, lunch and dinner"
   }
 ];
 
 export const homeCards = [
   products[1],
-  products[7],
-  { ...products[5], image: "images/Nube07_CARD_LABEL.png.webp", title: "Music is in the air" }
+  products[2],
+  products[5]
 ];
 
 export const caseStudies = [
   {
-    title: "San Miguel",
-    subtitle: "American's Cup",
-    href: "/product/nube08",
-    type: "video",
-    src: "videos/NUBEHeader01.mp4"
+    title: "Garden Island",
+    subtitle: "Fresh bar",
+    href: "/product/salad",
+    type: "image",
+    src: img("buffet-salad")
   },
   {
-    title: "Space 10",
-    subtitle: "Denmark",
-    href: "/product/nube02",
+    title: "Hot Line",
+    subtitle: "Lunch service",
+    href: "/product/hot-line",
     type: "image",
-    src: "images/NubeIISpace10201719.jpg.webp"
+    src: img("buffet-hotline")
   },
   {
-    title: "Cuatro",
-    subtitle: "Mediaset",
-    href: "/product/nube04",
+    title: "World Table",
+    subtitle: "Global counter",
+    href: "/product/world-table",
     type: "image",
-    src: "images/NubeIVJeepsterpartyMediaseet201711.jpg.webp"
+    src: img("buffet-global")
   },
   {
-    title: "Jeep",
-    subtitle: "Launch event",
-    href: "/product/nube04",
+    title: "Carving Grill",
+    subtitle: "Chef station",
+    href: "/product/grill",
     type: "image",
-    src: "images/68710ce150059_NubeIVJeepsterpartyMediaseet201720.jpg.webp"
+    src: img("buffet-carving")
   },
   {
-    title: "Paseo Festival",
-    subtitle: "USA",
-    href: "/product/nube01",
+    title: "Dessert Counter",
+    subtitle: "Sweet finish",
+    href: "/product/dessert",
     type: "image",
-    src: "images/NUBE_01_12.jpg.webp"
+    src: img("buffet-dessert")
   }
 ];
 
 export const workSteps = [
   {
     kicker: "01",
-    title: "Concept",
-    text: "A first spatial idea shaped around audience, brand and location.",
-    type: "video",
-    src: "videos/Nube_Proceso_01_Concept.mp4"
+    title: "Prep",
+    text: "Fresh ingredients are portioned and staged before each service window.",
+    type: "image",
+    src: img("buffet-kitchen")
   },
   {
     kicker: "02",
-    title: "Design",
-    text: "Geometry, pressure and fabric become a temporary architecture system.",
+    title: "Serve",
+    text: "Stations are replenished in small batches so counters stay abundant and clean.",
     type: "image",
-    src: "images/NUBE_02_9.jpg.webp"
+    src: img("buffet-hotline")
   },
   {
     kicker: "03",
-    title: "Production",
-    text: "Every Nube is handcrafted in local workshops with durable materials.",
+    title: "Refresh",
+    text: "Dining room, beverage counters and desserts are reset throughout the day.",
     type: "image",
-    src: "images/NUBE_04_8.jpg"
+    src: img("buffet-beverage")
   }
 ];
 
 export const team = [
   {
-    image: "images/team1.jpg",
-    role: "Co-Founder & Design Director",
-    name: "Miguel A. Maure",
-    text: "Architect and researcher behind the studio's spatial language."
+    image: img("buffet-team"),
+    role: "Hospitality Director",
+    name: "Service Team",
+    text: "The dining-room crew keeps stations clear, stocked and easy to navigate."
   },
   {
-    image: "images/team.jpg",
-    role: "Co-Founder & Managing Director",
-    name: "Hugo Cifre",
-    text: "Architect and entrepreneur focused on technology and international projects."
+    image: img("buffet-kitchen"),
+    role: "Kitchen Team",
+    name: "Prep Crew",
+    text: "Cooks work in short production cycles so dishes arrive fresh through the rush."
   }
 ];
 
 export const clients = [
   {
-    image: "images/NUBE_02_9.jpg.webp",
-    title: "Space 10",
-    text: "A Nube for a research and design event in Copenhagen.",
-    href: "/product/nube02"
+    image: img("buffet-family"),
+    title: "Family Lunch",
+    text: "A relaxed room with generous circulation and flexible seating.",
+    href: "/product/family-dining"
   },
   {
-    image: "images/NUBE_04_8.jpg",
-    title: "Airbus",
-    text: "An event in Sevilla about innovation and new realities.",
-    href: "/product/nube04"
+    image: img("buffet-carving"),
+    title: "Chef Station",
+    text: "Live carving and grill specials add a focal point to dinner service.",
+    href: "/product/grill"
   },
   {
-    image: "images/NUBE_08_2.jpg.webp",
-    title: "San Miguel",
-    text: "Three cities, one Nube travelling across the Mediterranean.",
-    href: "/product/nube08"
+    image: img("buffet-beverage"),
+    title: "All-day Drinks",
+    text: "Coffee, juice and infused water support every service period.",
+    href: "/product/beverage"
   }
 ];
 
 export const productGallery = [
-  { type: "image", src: "images/NUBE01.jpg.webp", alt: "Cloud opening toward the sky" },
-  { type: "image", src: "images/ZO5A4434.jpg.webp", alt: "Evening event with red lights" },
-  { type: "image", src: "images/03NubeII.jpg.webp", alt: "Tensioners from the cloud ceiling" }
+  { type: "image", src: img("buffet-hero"), alt: "Buffet restaurant interior" },
+  { type: "image", src: img("buffet-hotline"), alt: "Hot buffet service" },
+  { type: "image", src: img("buffet-layout"), alt: "Buffet layout before opening" }
 ];
 
 export const productDetails = [
-  { image: "images/01NubeII.jpg.webp", title: "Compact scale that unfolds into a monumental space" },
-  { image: "images/ZO5A4633.jpg.webp", title: "Oval design with a central oculus open to the sky" },
-  { image: "images/ZO5A4427.jpg.webp", title: "Inner courtyard garden transforming the space into a sensory retreat" }
+  { image: img("buffet-layout"), title: "A layout built for visible choice and steady movement" },
+  { image: img("buffet-kitchen"), title: "Small-batch preparation keeps the buffet fresh through the day" },
+  { image: img("buffet-beverage"), title: "Self-service drinks and reset points reduce waiting time" }
 ];
 
 export function getRoute(pathname) {
