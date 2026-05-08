@@ -1,0 +1,16 @@
+{
+  "name": "espacio-la-nube-clone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "serve:python": "python3 scripts/serve.py",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
