@@ -5,99 +5,99 @@ const img = (name) => `images/generated/${name}.png`;
 export const products = [
   {
     slug: "breakfast",
-    name: "Morning Bar",
-    title: "Breakfast, ready when you are",
-    description: "Pastries, fruit, eggs, yogurt and coffee laid out for a bright start.",
+    name: "Bar du Matin",
+    title: "Le petit-déjeuner, prêt quand vous l'êtes",
+    description: "Viennoiseries, fruits, oeufs, yaourts et café pour commencer la journée avec légèreté.",
     image: img("buffet-breakfast"),
-    categories: ["Breakfast", "Fresh", "All-day"],
-    stats: ["07:00 - 11:00", "24 hot trays", "Fresh fruit", "Coffee included"]
+    categories: ["Petit-déjeuner", "Frais", "Toute la journée"],
+    stats: ["07:00 - 11:00", "24 plats chauds", "Fruits frais", "Café inclus"]
   },
   {
     slug: "salad",
-    name: "Garden Island",
-    title: "Freshness by the bowl",
-    description: "Greens, grains, roasted vegetables and dressings arranged for quick custom plates.",
+    name: "Îlot Jardin",
+    title: "La fraîcheur dans chaque bol",
+    description: "Salades, céréales, légumes rôtis et sauces pour composer rapidement votre assiette.",
     image: img("buffet-salad"),
-    categories: ["Vegetarian", "Fresh", "Lunch"],
-    stats: ["18 toppings", "6 dressings", "Vegan options", "Cold line"]
+    categories: ["Végétarien", "Frais", "Déjeuner"],
+    stats: ["18 garnitures", "6 sauces", "Options véganes", "Comptoir froid"]
   },
   {
     slug: "hot-line",
-    name: "Hot Line",
-    title: "Comfort served in motion",
-    description: "A rotating spread of warm mains, sides and chef-replenished classics.",
+    name: "Comptoir Chaud",
+    title: "Le réconfort servi en mouvement",
+    description: "Une sélection tournante de plats chauds, accompagnements et classiques réapprovisionnés par l'équipe.",
     image: img("buffet-hotline"),
-    categories: ["Hot food", "Lunch", "Dinner"],
-    stats: ["12 mains", "8 sides", "Chef refreshed", "Warm service"]
+    categories: ["Plats chauds", "Déjeuner", "Dîner"],
+    stats: ["12 plats", "8 accompagnements", "Réassort chef", "Service chaud"]
   },
   {
     slug: "world-table",
-    name: "World Table",
-    title: "A passport on one plate",
-    description: "Mediterranean, Asian and seasonal specialties gathered in one generous counter.",
+    name: "Table du Monde",
+    title: "Un voyage dans une seule assiette",
+    description: "Spécialités méditerranéennes, asiatiques et saisonnières réunies sur un grand comptoir généreux.",
     image: img("buffet-global"),
-    categories: ["Global", "Dinner", "Family"],
-    stats: ["5 cuisines", "Daily rotation", "Sauce bar", "Open kitchen"]
+    categories: ["Monde", "Dîner", "Famille"],
+    stats: ["5 cuisines", "Rotation quotidienne", "Bar à sauces", "Cuisine ouverte"]
   },
   {
     slug: "grill",
-    name: "Carving Grill",
-    title: "Fresh cuts, finished live",
-    description: "Roasts, grilled vegetables and protein specials sliced and served at the station.",
+    name: "Grill Découpe",
+    title: "Des pièces fraîches, finies devant vous",
+    description: "Rôtis, légumes grillés et spécialités protéinées découpés et servis au comptoir.",
     image: img("buffet-carving"),
-    categories: ["Hot food", "Dinner", "Chef station"],
-    stats: ["Live station", "3 proteins", "Grilled sides", "Peak hours"]
+    categories: ["Plats chauds", "Dîner", "Station chef"],
+    stats: ["Station live", "3 protéines", "Légumes grillés", "Heures de pointe"]
   },
   {
     slug: "dessert",
-    name: "Dessert Counter",
-    title: "Small sweets, big finish",
-    description: "Tarts, cakes, mousse cups and fruit arranged for a flexible final course.",
+    name: "Comptoir Dessert",
+    title: "Petites douceurs, grande finale",
+    description: "Tartelettes, gâteaux, mousses et fruits pour terminer le repas à votre rythme.",
     image: img("buffet-dessert"),
-    categories: ["Dessert", "Family"],
-    stats: ["16 sweets", "Fruit tarts", "Chocolate bar", "Refilled often"]
+    categories: ["Dessert", "Famille"],
+    stats: ["16 douceurs", "Tartelettes fruitées", "Bar chocolat", "Réassort fréquent"]
   },
   {
     slug: "beverage",
-    name: "Drinks Station",
-    title: "Coffee, juice and infused water",
-    description: "A self-service refreshment counter designed for easy flow and clean refills.",
+    name: "Station Boissons",
+    title: "Café, jus et eaux infusées",
+    description: "Un comptoir en libre-service pensé pour un passage fluide et des recharges propres.",
     image: img("buffet-beverage"),
-    categories: ["Drinks", "Breakfast", "All-day"],
-    stats: ["Juice carafes", "Espresso", "Infused water", "Glassware ready"]
+    categories: ["Boissons", "Petit-déjeuner", "Toute la journée"],
+    stats: ["Jus frais", "Espresso", "Eaux infusées", "Verres prêts"]
   },
   {
     slug: "family-dining",
-    name: "Family Dining",
-    title: "Room for every appetite",
-    description: "Comfortable seating, easy circulation and a relaxed rhythm for groups of all sizes.",
+    name: "Salle Famille",
+    title: "De la place pour tous les appétits",
+    description: "Assises confortables, circulation simple et ambiance détendue pour les groupes de toutes tailles.",
     image: img("buffet-family"),
-    categories: ["Family", "Lunch", "Dinner"],
-    stats: ["160 seats", "Wide aisles", "High chairs", "Group tables"]
+    categories: ["Famille", "Déjeuner", "Dîner"],
+    stats: ["160 places", "Allées larges", "Chaises hautes", "Tables de groupe"]
   }
 ];
 
 export const homeHero = [
-  { type: "image", src: img("buffet-hero"), thumb: img("buffet-hero"), alt: "Modern self-service buffet restaurant" },
-  { type: "image", src: img("buffet-hotline"), thumb: img("buffet-hotline"), alt: "Hot buffet line with freshly replenished dishes" },
-  { type: "image", src: img("buffet-salad"), thumb: img("buffet-salad"), alt: "Fresh salad buffet island" },
-  { type: "image", src: img("buffet-dessert"), thumb: img("buffet-dessert"), alt: "Dessert buffet counter" },
-  { type: "image", src: img("buffet-family"), thumb: img("buffet-family"), alt: "Family dining room beside the buffet" },
-  { type: "image", src: img("buffet-beverage"), thumb: img("buffet-beverage"), alt: "Self-service beverage station" }
+  { type: "image", src: img("buffet-hero"), thumb: img("buffet-hero"), alt: "Restaurant buffet moderne en libre-service" },
+  { type: "image", src: img("buffet-hotline"), thumb: img("buffet-hotline"), alt: "Comptoir chaud avec plats réapprovisionnés" },
+  { type: "image", src: img("buffet-salad"), thumb: img("buffet-salad"), alt: "Îlot de salades fraîches" },
+  { type: "image", src: img("buffet-dessert"), thumb: img("buffet-dessert"), alt: "Comptoir de desserts" },
+  { type: "image", src: img("buffet-family"), thumb: img("buffet-family"), alt: "Salle familiale près du buffet" },
+  { type: "image", src: img("buffet-beverage"), thumb: img("buffet-beverage"), alt: "Station boissons en libre-service" }
 ];
 
 export const homeSlider = [
   {
     image: img("buffet-layout"),
-    title: "Clear stations, wide aisles and a faster self-service flow"
+    title: "Des stations lisibles, des allées larges et un service plus fluide"
   },
   {
     image: img("buffet-kitchen"),
-    title: "Prepared fresh in small batches before every service"
+    title: "Préparé frais en petites séries avant chaque service"
   },
   {
     image: img("buffet-global"),
-    title: "A daily-changing spread for breakfast, lunch and dinner"
+    title: "Une offre qui change chaque jour pour le matin, le midi et le soir"
   }
 ];
 
@@ -109,36 +109,36 @@ export const homeCards = [
 
 export const caseStudies = [
   {
-    title: "Garden Island",
-    subtitle: "Fresh bar",
+    title: "Îlot Jardin",
+    subtitle: "Bar frais",
     href: "/product/salad",
     type: "image",
     src: img("buffet-salad")
   },
   {
-    title: "Hot Line",
-    subtitle: "Lunch service",
+    title: "Comptoir Chaud",
+    subtitle: "Service déjeuner",
     href: "/product/hot-line",
     type: "image",
     src: img("buffet-hotline")
   },
   {
-    title: "World Table",
-    subtitle: "Global counter",
+    title: "Table du Monde",
+    subtitle: "Comptoir global",
     href: "/product/world-table",
     type: "image",
     src: img("buffet-global")
   },
   {
-    title: "Carving Grill",
-    subtitle: "Chef station",
+    title: "Grill Découpe",
+    subtitle: "Station chef",
     href: "/product/grill",
     type: "image",
     src: img("buffet-carving")
   },
   {
-    title: "Dessert Counter",
-    subtitle: "Sweet finish",
+    title: "Comptoir Dessert",
+    subtitle: "Final sucré",
     href: "/product/dessert",
     type: "image",
     src: img("buffet-dessert")
@@ -148,22 +148,22 @@ export const caseStudies = [
 export const workSteps = [
   {
     kicker: "01",
-    title: "Prep",
-    text: "Fresh ingredients are portioned and staged before each service window.",
+    title: "Préparer",
+    text: "Les ingrédients frais sont portionnés et organisés avant chaque fenêtre de service.",
     type: "image",
     src: img("buffet-kitchen")
   },
   {
     kicker: "02",
-    title: "Serve",
-    text: "Stations are replenished in small batches so counters stay abundant and clean.",
+    title: "Servir",
+    text: "Les stations sont réapprovisionnées en petites séries pour rester généreuses et nettes.",
     type: "image",
     src: img("buffet-hotline")
   },
   {
     kicker: "03",
-    title: "Refresh",
-    text: "Dining room, beverage counters and desserts are reset throughout the day.",
+    title: "Rafraîchir",
+    text: "La salle, les boissons et les desserts sont remis en place tout au long de la journée.",
     type: "image",
     src: img("buffet-beverage")
   }
@@ -172,49 +172,49 @@ export const workSteps = [
 export const team = [
   {
     image: img("buffet-team"),
-    role: "Hospitality Director",
-    name: "Service Team",
-    text: "The dining-room crew keeps stations clear, stocked and easy to navigate."
+    role: "Direction hospitalité",
+    name: "Équipe de salle",
+    text: "L'équipe garde les stations lisibles, propres et faciles à parcourir."
   },
   {
     image: img("buffet-kitchen"),
-    role: "Kitchen Team",
-    name: "Prep Crew",
-    text: "Cooks work in short production cycles so dishes arrive fresh through the rush."
+    role: "Équipe cuisine",
+    name: "Brigade préparation",
+    text: "Les cuisiniers travaillent en cycles courts pour garder les plats frais pendant l'affluence."
   }
 ];
 
 export const clients = [
   {
     image: img("buffet-family"),
-    title: "Family Lunch",
-    text: "A relaxed room with generous circulation and flexible seating.",
+    title: "Déjeuner famille",
+    text: "Une salle détendue avec une circulation généreuse et des assises flexibles.",
     href: "/product/family-dining"
   },
   {
     image: img("buffet-carving"),
-    title: "Chef Station",
-    text: "Live carving and grill specials add a focal point to dinner service.",
+    title: "Station chef",
+    text: "La découpe et le grill en direct donnent du rythme au service du soir.",
     href: "/product/grill"
   },
   {
     image: img("buffet-beverage"),
-    title: "All-day Drinks",
-    text: "Coffee, juice and infused water support every service period.",
+    title: "Boissons toute la journée",
+    text: "Café, jus et eaux infusées accompagnent chaque moment du service.",
     href: "/product/beverage"
   }
 ];
 
 export const productGallery = [
-  { type: "image", src: img("buffet-hero"), alt: "Buffet restaurant interior" },
-  { type: "image", src: img("buffet-hotline"), alt: "Hot buffet service" },
-  { type: "image", src: img("buffet-layout"), alt: "Buffet layout before opening" }
+  { type: "image", src: img("buffet-hero"), alt: "Intérieur du restaurant buffet" },
+  { type: "image", src: img("buffet-hotline"), alt: "Service du comptoir chaud" },
+  { type: "image", src: img("buffet-layout"), alt: "Plan du buffet avant ouverture" }
 ];
 
 export const productDetails = [
-  { image: img("buffet-layout"), title: "A layout built for visible choice and steady movement" },
-  { image: img("buffet-kitchen"), title: "Small-batch preparation keeps the buffet fresh through the day" },
-  { image: img("buffet-beverage"), title: "Self-service drinks and reset points reduce waiting time" }
+  { image: img("buffet-layout"), title: "Un agencement pensé pour voir, choisir et circuler sans attente" },
+  { image: img("buffet-kitchen"), title: "Une préparation en petites séries pour garder la fraîcheur toute la journée" },
+  { image: img("buffet-beverage"), title: "Des boissons en libre-service et des points de reprise pour limiter l'attente" }
 ];
 
 export function getRoute(pathname) {

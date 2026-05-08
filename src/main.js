@@ -46,8 +46,8 @@ function nav() {
         <button type="button" data-contact>Contact</button>
       </div>
       <div class="nav_contact" data-contact-panel>
-        <p>Mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
-        <p>Phone <a href="tel:+15550101988">+1 555 010 1988</a></p>
+        <p>E-mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
+        <p>Téléphone <a href="tel:+15550101988">+1 555 010 1988</a></p>
       </div>
     </nav>`;
 }
@@ -62,20 +62,20 @@ function footer() {
         </div>
         <div class="grid foot_bp">
           <form class="newsletter">
-            <label>Subscribe for weekly menus</label>
-            <input type="email" placeholder="Enter your email" required />
-            <button type="submit" aria-label="Subscribe">${logo}</button>
-            <p class="newsletter_ok">Signup successful</p>
+            <label>Recevoir les menus de la semaine</label>
+            <input type="email" placeholder="Votre adresse e-mail" required />
+            <button type="submit" aria-label="S'inscrire">${logo}</button>
+            <p class="newsletter_ok">Inscription confirmée</p>
           </form>
           <div>
             <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a>
             <a href="tel:+15550101988">+1 555 010 1988</a>
             <a href="tel:+15550101989">+1 555 010 1989</a>
           </div>
-          <div><a href="/" data-link>Home</a><a href="/work" data-link>Stations</a><a href="/info" data-link>Info</a></div>
-          <div><a href="/product/breakfast" data-link>Breakfast</a><a href="/product/hot-line" data-link>Lunch</a><a href="/product/dessert" data-link>Dessert</a></div>
-          <p class="copy">All Rights Reserved © 2026</p>
-          <a href="/">Fresh self-service dining</a>
+          <div><a href="/" data-link>Accueil</a><a href="/work" data-link>Stations</a><a href="/info" data-link>Info</a></div>
+          <div><a href="/product/breakfast" data-link>Petit-déjeuner</a><a href="/product/hot-line" data-link>Déjeuner</a><a href="/product/dessert" data-link>Dessert</a></div>
+          <p class="copy">Tous droits réservés © 2026</p>
+          <a href="/">Buffet frais en libre-service</a>
         </div>
       </div>
     </footer>`;
@@ -85,24 +85,24 @@ function cookieUi() {
   return `
     <div class="coo" data-cookie>
       <div class="coo_btm">
-        <p>Our cookies help service flow</p>
-        <button type="button" data-cookie-accept>Accept</button>
-        <button type="button" data-cookie-manage>Manage</button>
+        <p>Nos cookies facilitent votre visite</p>
+        <button type="button" data-cookie-accept>Accepter</button>
+        <button type="button" data-cookie-manage>Gérer</button>
       </div>
       <div class="modal cookie_modal" data-cookie-modal>
         <div class="modal_h">
-          <h2>Cookie settings</h2>
-          <p>Mandatory cookies are always active. Analytics cookies are optional in this demo.</p>
-          <label class="toggle"><input type="checkbox" /> Analytics cookies</label>
-          ${button("Accept Selection", "#", "modal-close")}
-          ${button("Accept All", "#", "modal-close")}
-          <button class="modal_x" type="button" aria-label="Close">×</button>
+          <h2>Préférences cookies</h2>
+          <p>Les cookies nécessaires sont toujours actifs. Les cookies d'analyse sont optionnels dans cette démo.</p>
+          <label class="toggle"><input type="checkbox" /> Cookies d'analyse</label>
+          ${button("Valider la sélection", "#", "modal-close")}
+          ${button("Tout accepter", "#", "modal-close")}
+          <button class="modal_x" type="button" aria-label="Fermer">×</button>
         </div>
       </div>
     </div>`;
 }
 
-function hero({ eyebrow = "", title, slides, cta = "Learn more", href = "#anchorHome-1", product = false }) {
+function hero({ eyebrow = "", title, slides, cta = "En savoir plus", href = "#anchorHome-1", product = false }) {
   return `
     <section class="hero ${product ? "product_hero" : ""}" data-hero>
       <div class="hero_bg">
@@ -139,7 +139,7 @@ function featureSlider(items, className = "home_slider") {
           </div>
           <div class="home_slider_pag">
             <div class="pag_h">
-              ${items.map((_, index) => `<button type="button" class="${index === 0 ? "A" : ""}" data-home-slide="${index}" aria-label="Go to slide ${index + 1}"></button>`).join("")}
+              ${items.map((_, index) => `<button type="button" class="${index === 0 ? "A" : ""}" data-home-slide="${index}" aria-label="Aller à la diapositive ${index + 1}"></button>`).join("")}
             </div>
           </div>
         </div>
@@ -156,8 +156,8 @@ function featureSlider(items, className = "home_slider") {
           </article>`).join("")}
       </div>
       <div class="slider_pag">
-        <button type="button" data-prev aria-label="Previous">‹</button>
-        <button type="button" data-next aria-label="Next">›</button>
+        <button type="button" data-prev aria-label="Précédent">‹</button>
+        <button type="button" data-next aria-label="Suivant">›</button>
       </div>
     </section>`;
 }
@@ -167,7 +167,7 @@ function homeCardsStack(items) {
     <section class="home_cards">
       <div class="grid">
         <div class="home_cards_tt reveal">
-          <h2 class="h1">Explore Our Stations</h2>
+          <h2 class="h1">Explorer nos stations</h2>
         </div>
         <div class="home_cards_stck">
           <div class="home_cards_sld reveal" data-card-stack>
@@ -180,14 +180,14 @@ function homeCardsStack(items) {
                       <p class="p2">${item.name || ""}</p>
                       <h3 class="h2">${item.title}</h3>
                       ${item.description || item.text ? `<p class="p2">${item.description || item.text}</p>` : ""}
-                      ${item.slug ? button("Learn more", `/product/${item.slug}`) : ""}
+                      ${item.slug ? button("En savoir plus", `/product/${item.slug}`) : ""}
                     </div>
                   </div>
                 </article>`).join("")}
             </div>
             <div class="sld_pag">
-              <button type="button" class="TL" data-card-prev aria-label="Previous">‹</button>
-              <button type="button" class="TR" data-card-next aria-label="Next">›</button>
+              <button type="button" class="TL" data-card-prev aria-label="Précédent">‹</button>
+              <button type="button" class="TR" data-card-next aria-label="Suivant">›</button>
             </div>
           </div>
         </div>
@@ -204,7 +204,7 @@ function card(product) {
           <h4 class="p2">${product.name || product.role}</h4>
           <h3 class="h2">${product.title || product.name}</h3>
           <p class="p2">${product.description || product.text}</p>
-          ${product.slug ? button("Learn more", `/product/${product.slug}`) : product.href ? button("Learn more", product.href) : ""}
+          ${product.slug ? button("En savoir plus", `/product/${product.slug}`) : product.href ? button("En savoir plus", product.href) : ""}
         </div>
       </div>
     </article>`;
@@ -224,9 +224,9 @@ function cardsSection(title, text, items, options = {}) {
         ${options.filters ? `
           <div class="browse_btn">
             <div class="browse_cats">${options.filters.map((filter) => `<button type="button" data-filter="${filter}">${filter}</button>`).join("")}<button type="button" data-filter="all">all</button></div>
-            ${button("Show more", "#", "browse-more")}
-            ${button("Filters", "#", "browse-filters")}
-          </div>` : options.collapsed ? `<div class="browse_btn">${button("Show more", "#", "browse-more")}</div>` : ""}
+            ${button("Afficher plus", "#", "browse-more")}
+            ${button("Filtres", "#", "browse-filters")}
+          </div>` : options.collapsed ? `<div class="browse_btn">${button("Afficher plus", "#", "browse-more")}</div>` : ""}
       </div>
     </section>`;
 }
@@ -237,14 +237,14 @@ function stackedCases() {
       <div class="grid home_stck_h">
         <div class="txt">
           <div class="txt_el A">
-            <h2 class="h1">Fresh choices</h2>
-            <h2 class="h1">Made for every plate</h2>
-            ${button("Contact us", "mailto:hello@mesabuffet.example")}
+            <h2 class="h1">Des choix frais</h2>
+            <h2 class="h1">Pour chaque assiette</h2>
+            ${button("Nous contacter", "mailto:hello@mesabuffet.example")}
           </div>
           <div class="txt_el">
-            <h2 class="h1">Easy flow</h2>
-            <h2 class="h1">From counter to table</h2>
-            ${button("Plan a visit", "mailto:hello@mesabuffet.example")}
+            <h2 class="h1">Un parcours fluide</h2>
+            <h2 class="h1">Du comptoir à la table</h2>
+            ${button("Préparer une visite", "mailto:hello@mesabuffet.example")}
           </div>
         </div>
       </div>
@@ -263,8 +263,8 @@ function stackedCases() {
 function homePage() {
   return `
     <main class="home">
-      ${hero({ title: "Self-Service Buffet Dining", slides: homeHero, cta: "See stations" })}
-      ${textBlock("Mesa Buffet is a bright, modern self-service restaurant built around fresh stations, steady replenishment and the freedom to compose every plate your way.", "anchorHome-1")}
+      ${hero({ title: "Buffet en libre-service", slides: homeHero, cta: "Voir les stations" })}
+      ${textBlock("Mesa Buffet est un restaurant moderne et lumineux, organisé autour de stations fraîches, d'un réassort régulier et de la liberté de composer chaque assiette à votre façon.", "anchorHome-1")}
       ${featureSlider(homeSlider)}
       ${homeCardsStack(homeCards)}
       ${stackedCases()}
@@ -275,13 +275,13 @@ function homePage() {
 function workPage() {
   return `
     <main class="work">
-      ${cardsSection("Explore Our Stations", "A practical map of the buffet: breakfast, fresh bar, hot dishes, global counters, live grill, drinks and dessert.", products, { filters: ["Breakfast", "Fresh", "Hot food", "Dinner", "Family"], collapsed: true })}
+      ${cardsSection("Explorer nos stations", "Une carte pratique du buffet : petit-déjeuner, bar frais, plats chauds, comptoirs du monde, grill en direct, boissons et desserts.", products, { filters: ["Petit-déjeuner", "Frais", "Plats chauds", "Dîner", "Famille"], collapsed: true })}
       ${featureSlider(workSteps, "work_slider")}
       <section class="method grid-vw reveal">
-        <h2 class="h1">How service flows</h2>
-        <p class="p1">A seven-step buffet rhythm that keeps counters full, dining calm and choices clear.</p>
+        <h2 class="h1">Le rythme du service</h2>
+        <p class="p1">Une méthode en sept temps pour garder les comptoirs généreux, la salle calme et les choix évidents.</p>
         <div class="method_grid">
-          ${["Prep", "Open", "Guide", "Replenish", "Reset", "Refresh", "Close"].map((step, index) => `<span><b>${String(index + 1).padStart(2, "0")}</b>${step}</span>`).join("")}
+          ${["Préparer", "Ouvrir", "Guider", "Réassortir", "Remettre", "Rafraîchir", "Clôturer"].map((step, index) => `<span><b>${String(index + 1).padStart(2, "0")}</b>${step}</span>`).join("")}
         </div>
       </section>
       ${footer()}
@@ -289,24 +289,24 @@ function workPage() {
 }
 
 function infoPage() {
-  const words = ["Breakfast", "Freshness", "Warmth", "Choice", "Coffee", "Salads", "Grill", "Dessert", "Family", "Speed", "Comfort", "Variety"];
+  const words = ["Petit-déjeuner", "Fraîcheur", "Chaleur", "Choix", "Café", "Salades", "Grill", "Dessert", "Famille", "Vitesse", "Confort", "Variété"];
   return `
     <main class="about">
       <section class="about_intro">
         <div class="grid-vw about_intro_grid">
           <div class="word_roll">${words.map((word) => `<span class="h1">${word}</span>`).join("")}</div>
-          <div><span class="h1">is on the table</span></div>
+          <div><span class="h1">est à table</span></div>
         </div>
       </section>
-      ${textBlock("Mesa Buffet is designed for everyday abundance: a clean dining room, generous counters, clear movement and freshly prepared dishes that stay approachable from opening to close.")}
-      ${featureSlider([{ image: "images/generated/buffet-layout.png", title: "Every station is arranged around quick decisions, easy refills and comfortable circulation" }])}
-      ${cardsSection("Our team", "Kitchen and dining-room crews work together so the buffet feels full, fresh and easy to use.", team)}
+      ${textBlock("Mesa Buffet est pensé pour une abondance quotidienne : une salle nette, des comptoirs généreux, une circulation claire et des plats fraîchement préparés du début à la fin du service.")}
+      ${featureSlider([{ image: "images/generated/buffet-layout.png", title: "Chaque station facilite le choix, le réassort et la circulation" }])}
+      ${cardsSection("Notre équipe", "La cuisine et la salle travaillent ensemble pour garder le buffet plein, frais et simple à parcourir.", team)}
       ${featureSlider(clients.map((item) => ({ image: item.image, title: item.title, text: item.text })), "cards_slider")}
-      ${cardsSection("News & Updates", "", [
-        { image: "images/generated/buffet-global.png", name: "Menu", title: "World Table Weekend", description: "Rotating global dishes join the dinner buffet.", href: "/product/world-table" },
-        { image: "images/generated/buffet-breakfast.png", name: "Morning", title: "Early Breakfast", description: "Fresh coffee, pastries and fruit from 7am.", href: "/product/breakfast" },
-        { image: "images/generated/buffet-dessert.png", name: "Dessert", title: "Sweet Counter", description: "Small-format desserts refreshed through service.", href: "/product/dessert" }
-      ], { filters: ["Menu", "Morning", "Dessert"] })}
+      ${cardsSection("Actualités", "", [
+        { image: "images/generated/buffet-global.png", name: "Menu", title: "Week-end Table du Monde", description: "Des plats du monde en rotation rejoignent le buffet du soir.", href: "/product/world-table" },
+        { image: "images/generated/buffet-breakfast.png", name: "Matin", title: "Petit-déjeuner dès l'ouverture", description: "Café frais, viennoiseries et fruits dès 7 h.", href: "/product/breakfast" },
+        { image: "images/generated/buffet-dessert.png", name: "Dessert", title: "Comptoir sucré", description: "Des petits desserts remis en place tout au long du service.", href: "/product/dessert" }
+      ], { filters: ["Menu", "Matin", "Dessert"] })}
       ${footer()}
     </main>`;
 }
@@ -319,32 +319,32 @@ function productPage(product) {
   ];
   return `
     <main class="product">
-      ${hero({ eyebrow: product.name, title: product.title, slides: gallery, cta: `Ask about ${product.name}`, href: "mailto:hello@mesabuffet.example", product: true })}
-      ${textBlock("A station built for choice, speed and freshness. Pick a plate, follow the counter and build the meal that fits your appetite.")}
+      ${hero({ eyebrow: product.name, title: product.title, slides: gallery, cta: `Demander ${product.name}`, href: "mailto:hello@mesabuffet.example", product: true })}
+      ${textBlock("Une station pensée pour le choix, la vitesse et la fraîcheur. Prenez une assiette, suivez le comptoir et composez le repas qui vous convient.")}
       ${featureSlider(productDetails)}
       <section class="product_features grid-vw reveal">
         <div class="top">
-          <h2 class="h1">Station details</h2>
-          <p class="p1">Capacity, flow and service notes for this counter.</p>
+          <h2 class="h1">Détails de la station</h2>
+          <p class="p1">Capacité, circulation et notes de service pour ce comptoir.</p>
         </div>
         <div class="render">
           <img src="${asset(product.slug === "hot-line" ? "images/generated/buffet-layout.png" : product.image)}" alt="${product.name} station detail" />
           <button type="button" class="plus" data-feature-modal>+</button>
         </div>
         <div class="btm">
-          ${button("Details", "#", "features-open")}
-          <a class="Abtn" href="mailto:hello@mesabuffet.example"><span class="Abtn_h"><span class="Abtn_t">Plan a group visit</span></span></a>
+          ${button("Détails", "#", "features-open")}
+          <a class="Abtn" href="mailto:hello@mesabuffet.example"><span class="Abtn_h"><span class="Abtn_t">Préparer une visite de groupe</span></span></a>
         </div>
       </section>
       ${featureSlider(homeCards.map((item) => ({ image: item.image, title: item.title, text: item.description })), "cards_slider")}
-      <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Plan your next meal</p>${button("Contact the restaurant", "mailto:hello@mesabuffet.example")}</div></section>
-      ${cardsSection("Explore more stations", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
+      <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Préparer votre prochain repas</p>${button("Contacter le restaurant", "mailto:hello@mesabuffet.example")}</div></section>
+      ${cardsSection("Explorer d'autres stations", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
       <div class="modal feature_modal">
         <div class="modal_h">
-          <h2>${product.name} Details</h2>
+          <h2>Détails ${product.name}</h2>
           <img src="${asset(product.slug === "hot-line" ? "images/generated/buffet-layout.png" : product.image)}" alt="${product.name}" />
-          <ul>${["Service window", "Counter setup", "Main offer", "Guest note"].map((label, index) => `<li><span>${label}</span><b>${product.stats[index]}</b></li>`).join("")}</ul>
-          <button class="modal_x" type="button" aria-label="Close">×</button>
+          <ul>${["Horaires", "Comptoir", "Offre principale", "Note client"].map((label, index) => `<li><span>${label}</span><b>${product.stats[index]}</b></li>`).join("")}</ul>
+          <button class="modal_x" type="button" aria-label="Fermer">×</button>
         </div>
       </div>
       ${footer()}
