@@ -51,6 +51,30 @@ test("does not accept mixed strings as numeric party sizes", () => {
   assert.equal(Number.isNaN(payload.partySize), true);
 });
 
+test("only accepts decimal positive-integer strings as party sizes", () => {
+  for (const partySize of ["", " ", null, "4.5", "0x10", "Infinity"]) {
+    const payload = buildReservationPayload({
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize,
+      reservationDate: "2026-05-15",
+      reservationTime: "19:30"
+    });
+
+    assert.equal(Number.isNaN(payload.partySize), true);
+  }
+
+  const payload = buildReservationPayload({
+    customerName: "Marie Dupont",
+    customerPhone: "+33123456789",
+    partySize: "4",
+    reservationDate: "2026-05-15",
+    reservationTime: "19:30"
+  });
+
+  assert.equal(payload.partySize, 4);
+});
+
 test("success copy does not expose reservation id or final confirmation", () => {
   const state = mapReservationResponse({ success: true, reservationId: 123 });
 
@@ -99,6 +123,39 @@ test("maps field-level validation details to form field errors", () => {
   assert.deepEqual(state.fieldErrors, {
     customerPhone: "Phone is required",
     customerEmail: "Email is invalid"
+  });
+});
+
+test("maps validation errors with array details to generic temporary copy", () => {
+  const state = mapReservationResponse({
+    error: "Validation error",
+    message: "Invalid fields",
+    details: ["bad"]
+  });
+
+  assert.deepEqual(state, {
+    kind: "temporary-error",
+    step: 2,
+    message: reservationCopy.temporary,
+    fieldErrors: {}
+  });
+});
+
+test("filters unexpected validation detail keys from field errors", () => {
+  const state = mapReservationResponse({
+    error: "Validation error",
+    message: "Invalid fields",
+    details: {
+      debug: "internal",
+      customerPhone: "Phone is required"
+    }
+  });
+
+  assert.equal(state.kind, "field-error");
+  assert.equal(state.step, 2);
+  assert.equal(state.message, "Invalid fields");
+  assert.deepEqual(state.fieldErrors, {
+    customerPhone: "Phone is required"
   });
 });
 

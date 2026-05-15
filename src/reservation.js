@@ -18,6 +18,29 @@ function timezoneOffset(date) {
   return `${sign}${hours}:${minutes}`;
 }
 
+function parsePartySize(value) {
+  const text = String(value ?? "").trim();
+  return /^\d+$/.test(text) ? Number(text) : Number.NaN;
+}
+
+const reservationFieldNames = new Set([
+  "customerName",
+  "customerPhone",
+  "customerEmail",
+  "partySize",
+  "reservationDate",
+  "notes",
+  "subscribe"
+]);
+
+function pickFieldErrors(details) {
+  if (!details || typeof details !== "object" || Array.isArray(details) || Object.getPrototypeOf(details) !== Object.prototype) {
+    return {};
+  }
+
+  return Object.fromEntries(Object.entries(details).filter(([field]) => reservationFieldNames.has(field)));
+}
+
 export function buildReservationDateTime(dateValue, timeValue) {
   const date = new Date(`${dateValue}T${timeValue}:00`);
   if (Number.isNaN(date.getTime())) return "";
@@ -39,7 +62,7 @@ export function buildReservationPayload(values) {
   const payload = {
     customerName: String(values.customerName || "").trim(),
     customerPhone: String(values.customerPhone || "").trim(),
-    partySize: Number(values.partySize),
+    partySize: parsePartySize(values.partySize),
     reservationDate: buildReservationDateTime(values.reservationDate, values.reservationTime),
     subscribe: Boolean(values.subscribe)
   };
@@ -69,12 +92,22 @@ export function mapReservationResponse(body) {
     return { kind: "capacity-error", step: 1, message: reservationCopy.capacity, fieldErrors: {} };
   }
 
-  if (body?.error === "Validation error" && body?.details && typeof body.details === "object") {
+  if (body?.error === "Validation error") {
+    const fieldErrors = pickFieldErrors(body.details);
+    if (Object.keys(fieldErrors).length === 0) {
+      return {
+        kind: "temporary-error",
+        step: 2,
+        message: reservationCopy.temporary,
+        fieldErrors: {}
+      };
+    }
+
     return {
       kind: "field-error",
       step: 2,
       message: body.message || body.error || reservationCopy.temporary,
-      fieldErrors: body.details
+      fieldErrors
     };
   }
 
