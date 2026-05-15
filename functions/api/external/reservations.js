@@ -5,6 +5,10 @@ function json(body, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
 
+function empty(status) {
+  return new Response(null, { status, headers: { "Cache-Control": "no-store" } });
+}
+
 function isEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -48,11 +52,11 @@ function normalize(input) {
     subscribe: input.subscribe === undefined ? false : input.subscribe
   };
 
-  if ("customerEmail" in input) {
+  if (Object.hasOwn(input, "customerEmail")) {
     const customerEmail = normalizeString(input.customerEmail);
     if (customerEmail !== "") output.customerEmail = customerEmail;
   }
-  if ("notes" in input) {
+  if (Object.hasOwn(input, "notes")) {
     const notes = normalizeString(input.notes);
     output.notesRawLength = typeof input.notes === "string" ? input.notes.length : undefined;
     if (notes !== "") {
@@ -94,16 +98,34 @@ export async function onRequest(context) {
   }
   delete payload.notesRawLength;
 
+  let upstream;
   try {
-    const upstream = await fetch(upstreamUrl, {
+    upstream = await fetch(upstreamUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    const text = await upstream.text();
-    const body = text ? JSON.parse(text) : {};
-    return json(body, upstream.status);
   } catch {
     return json({ error: "Upstream error", message: "Reservation service is unavailable." }, 502);
   }
+
+  let text;
+  try {
+    text = await upstream.text();
+  } catch {
+    return json({ error: "Upstream error", message: "Reservation service returned invalid JSON." }, upstream.status || 502);
+  }
+
+  if (!text) {
+    if (upstream.status === 204) return empty(204);
+    return json({}, upstream.status);
+  }
+
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return json({ error: "Upstream error", message: "Reservation service returned invalid JSON." }, upstream.status || 502);
+  }
+  return json(body, upstream.status);
 }

@@ -3,6 +3,7 @@ import { afterEach, test } from "node:test";
 import { onRequest } from "../functions/api/external/reservations.js";
 
 const upstreamUrl = "https://alpacai.net/api/external/reservations";
+const originalFetch = globalThis.fetch;
 
 function request(method, body) {
   return new Request("https://example.com/api/external/reservations", {
@@ -25,7 +26,7 @@ function assertRequiredFieldDetails(body) {
 }
 
 afterEach(() => {
-  globalThis.fetch = fetch;
+  globalThis.fetch = originalFetch;
 });
 
 test("rejects non-POST methods", async () => {
@@ -318,4 +319,61 @@ test("passes through upstream reservation errors", async () => {
 
   assert.equal(response.status, 409);
   assert.deepEqual(await json(response), { error: "Outside opening hours", message: "Closed" });
+});
+
+test("returns upstream status when upstream sends malformed JSON", async () => {
+  globalThis.fetch = async () => new Response("{", { status: 502 });
+
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+
+  assert.equal(response.status, 502);
+  assert.deepEqual(await json(response), {
+    error: "Upstream error",
+    message: "Reservation service returned invalid JSON."
+  });
+});
+
+test("returns empty no-store response for upstream 204", async () => {
+  globalThis.fetch = async () => new Response(null, { status: 204 });
+
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+
+  assert.equal(response.status, 204);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(await response.text(), "");
+});
+
+test("returns unavailable error when upstream fetch throws", async () => {
+  globalThis.fetch = async () => {
+    throw new Error("network unavailable");
+  };
+
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+
+  assert.equal(response.status, 502);
+  assert.deepEqual(await json(response), {
+    error: "Upstream error",
+    message: "Reservation service is unavailable."
+  });
 });
