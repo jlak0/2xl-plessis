@@ -38,6 +38,73 @@ test("returns validation errors for missing required fields", async () => {
   assert.equal(body.details.reservationDate, "Reservation date must be a valid date-time.");
 });
 
+test("rejects non-string customer names", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: 123,
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.customerName, "Name must be at least 2 characters.");
+});
+
+test("rejects non-string customer phones", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: 123456,
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.customerPhone, "Phone must be 6 to 20 characters.");
+});
+
+test("rejects non-integer party sizes", async () => {
+  for (const partySize of ["4abc", 4.5]) {
+    const response = await onRequest({
+      request: request("POST", {
+        customerName: "Marie Dupont",
+        customerPhone: "+33123456789",
+        partySize,
+        reservationDate: "2026-05-15T19:30:00+02:00"
+      })
+    });
+    const body = await json(response);
+
+    assert.equal(response.status, 400);
+    assert.equal(body.error, "Validation error");
+    assert.equal(body.details.partySize, "Party size must be between 1 and 300.");
+  }
+});
+
+test("rejects non-boolean subscribe values", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00",
+      subscribe: "false"
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.subscribe, "Subscribe must be a boolean.");
+});
+
 test("injects restaurant id and proxies valid requests upstream", async () => {
   let receivedUrl = "";
   let receivedInit = {};
@@ -74,6 +141,28 @@ test("injects restaurant id and proxies valid requests upstream", async () => {
   assert.equal(upstreamBody.subscribe, true);
   assert.equal("customerEmail" in upstreamBody, false);
   assert.equal("notes" in upstreamBody, false);
+});
+
+test("defaults missing subscribe to false when proxying valid requests", async () => {
+  let receivedInit = {};
+  globalThis.fetch = async (_url, init) => {
+    receivedInit = init;
+    return Response.json({ success: true }, { status: 200 });
+  };
+
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+
+  assert.equal(response.status, 200);
+
+  const upstreamBody = JSON.parse(receivedInit.body);
+  assert.equal(upstreamBody.subscribe, false);
 });
 
 test("passes through upstream reservation errors", async () => {

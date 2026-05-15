@@ -14,18 +14,28 @@ function isDateTime(value) {
   return !Number.isNaN(new Date(value).getTime());
 }
 
+function normalizeString(value) {
+  return typeof value === "string" ? value.trim() : value;
+}
+
+function normalizePartySize(value) {
+  if (Number.isInteger(value)) return value;
+  if (typeof value === "string" && /^\d+$/.test(value.trim())) return Number(value.trim());
+  return value;
+}
+
 function normalize(input) {
   const output = {
     restaurantId,
-    customerName: String(input.customerName || "").trim(),
-    customerPhone: String(input.customerPhone || "").trim(),
-    partySize: Number.parseInt(input.partySize, 10),
-    reservationDate: String(input.reservationDate || "").trim(),
-    subscribe: Boolean(input.subscribe)
+    customerName: normalizeString(input.customerName),
+    customerPhone: normalizeString(input.customerPhone),
+    partySize: normalizePartySize(input.partySize),
+    reservationDate: normalizeString(input.reservationDate),
+    subscribe: input.subscribe === undefined ? false : input.subscribe
   };
 
-  const customerEmail = String(input.customerEmail || "").trim();
-  const notes = String(input.notes || "").trim();
+  const customerEmail = normalizeString(input.customerEmail);
+  const notes = normalizeString(input.notes);
   if (customerEmail) output.customerEmail = customerEmail;
   if (notes) output.notes = notes;
   return output;
@@ -33,12 +43,13 @@ function normalize(input) {
 
 function validate(payload) {
   const details = {};
-  if (payload.customerName.length < 2) details.customerName = "Name must be at least 2 characters.";
-  if (payload.customerPhone.length < 6 || payload.customerPhone.length > 20) details.customerPhone = "Phone must be 6 to 20 characters.";
+  if (typeof payload.customerName !== "string" || payload.customerName.length < 2) details.customerName = "Name must be at least 2 characters.";
+  if (typeof payload.customerPhone !== "string" || payload.customerPhone.length < 6 || payload.customerPhone.length > 20) details.customerPhone = "Phone must be 6 to 20 characters.";
   if (!Number.isInteger(payload.partySize) || payload.partySize < 1 || payload.partySize > 300) details.partySize = "Party size must be between 1 and 300.";
   if (!isDateTime(payload.reservationDate)) details.reservationDate = "Reservation date must be a valid date-time.";
-  if (payload.customerEmail && !isEmail(payload.customerEmail)) details.customerEmail = "Email must be valid.";
-  if (payload.notes && payload.notes.length > 500) details.notes = "Notes must be 500 characters or fewer.";
+  if (payload.customerEmail && (typeof payload.customerEmail !== "string" || !isEmail(payload.customerEmail))) details.customerEmail = "Email must be valid.";
+  if (payload.notes && (typeof payload.notes !== "string" || payload.notes.length > 500)) details.notes = "Notes must be 500 characters or fewer.";
+  if (typeof payload.subscribe !== "boolean") details.subscribe = "Subscribe must be a boolean.";
   return details;
 }
 
