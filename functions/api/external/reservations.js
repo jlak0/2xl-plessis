@@ -54,9 +54,9 @@ function normalize(input) {
   }
   if ("notes" in input) {
     const notes = normalizeString(input.notes);
+    output.notesRawLength = typeof input.notes === "string" ? input.notes.length : undefined;
     if (notes !== "") {
       output.notes = notes;
-      output.notesRawLength = typeof input.notes === "string" ? input.notes.length : undefined;
     }
   }
   return output;
@@ -69,7 +69,8 @@ function validate(payload) {
   if (!Number.isInteger(payload.partySize) || payload.partySize < 1 || payload.partySize > 300) details.partySize = "Party size must be between 1 and 300.";
   if (!isDateTime(payload.reservationDate)) details.reservationDate = "Reservation date must be a valid date-time.";
   if ("customerEmail" in payload && (typeof payload.customerEmail !== "string" || !isEmail(payload.customerEmail))) details.customerEmail = "Email must be valid.";
-  if ("notes" in payload && (typeof payload.notes !== "string" || payload.notesRawLength > 500)) details.notes = "Notes must be 500 characters or fewer.";
+  if ("notesRawLength" in payload && payload.notesRawLength > 500) details.notes = "Notes must be 500 characters or fewer.";
+  if ("notes" in payload && typeof payload.notes !== "string") details.notes = "Notes must be 500 characters or fewer.";
   if (typeof payload.subscribe !== "boolean") details.subscribe = "Subscribe must be a boolean.";
   return details;
 }

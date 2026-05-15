@@ -161,6 +161,23 @@ test("rejects notes over 500 raw characters before trimming", async () => {
   assert.equal(body.details.notes, "Notes must be 500 characters or fewer.");
 });
 
+test("rejects blank notes over 500 raw characters", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00",
+      notes: " ".repeat(501)
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.notes, "Notes must be 500 characters or fewer.");
+});
+
 test("rejects non-boolean subscribe values", async () => {
   const response = await onRequest({
     request: request("POST", {
