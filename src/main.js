@@ -125,20 +125,27 @@ function reservationModal() {
         <form class="reservation_form" data-reservation-form novalidate>
           <div class="reservation_step A" data-reservation-step="1">
             <p class="p1">Quand venir ?</p>
-            <label>Date<input name="reservationDate" type="date" required /></label>
+            <label>Date<input name="reservationDate" type="date" required aria-describedby="reservationDate-error" /></label>
+            <p class="reservation_field_error" id="reservationDate-error" data-reservation-field-error="reservationDate" hidden></p>
             <label>Heure<input name="reservationTime" type="time" required /></label>
-            <label>Personnes<input name="partySize" type="number" min="1" max="300" value="2" required /></label>
-            <p class="reservation_error" data-reservation-error></p>
+            <label>Personnes<input name="partySize" type="number" min="1" max="300" value="2" required aria-describedby="partySize-error" /></label>
+            <p class="reservation_field_error" id="partySize-error" data-reservation-field-error="partySize" hidden></p>
+            <p class="reservation_error" data-reservation-error role="alert" aria-live="polite"></p>
             <button type="button" class="Abtn reservation_next" data-reservation-next><span class="Abtn_h"><span class="Abtn_t">Continuer</span></span></button>
           </div>
-          <div class="reservation_step" data-reservation-step="2">
+          <div class="reservation_step" data-reservation-step="2" hidden>
             <p class="p1">Vos coordonnées</p>
-            <label>Nom<input name="customerName" autocomplete="name" minlength="2" required /></label>
-            <label>Téléphone<input name="customerPhone" autocomplete="tel" minlength="6" maxlength="20" required /></label>
-            <label>Email <span>optionnel</span><input name="customerEmail" type="email" autocomplete="email" /></label>
-            <label>Notes <span>optionnel</span><textarea name="notes" maxlength="500" rows="3"></textarea></label>
-            <label class="reservation_check"><input name="subscribe" type="checkbox" /> Recevoir les menus et offres du restaurant</label>
-            <p class="reservation_error" data-reservation-error></p>
+            <label>Nom<input name="customerName" autocomplete="name" minlength="2" required aria-describedby="customerName-error" /></label>
+            <p class="reservation_field_error" id="customerName-error" data-reservation-field-error="customerName" hidden></p>
+            <label>Téléphone<input name="customerPhone" autocomplete="tel" minlength="6" maxlength="20" required aria-describedby="customerPhone-error" /></label>
+            <p class="reservation_field_error" id="customerPhone-error" data-reservation-field-error="customerPhone" hidden></p>
+            <label>Email <span>optionnel</span><input name="customerEmail" type="email" autocomplete="email" aria-describedby="customerEmail-error" /></label>
+            <p class="reservation_field_error" id="customerEmail-error" data-reservation-field-error="customerEmail" hidden></p>
+            <label>Notes <span>optionnel</span><textarea name="notes" maxlength="500" rows="3" aria-describedby="notes-error"></textarea></label>
+            <p class="reservation_field_error" id="notes-error" data-reservation-field-error="notes" hidden></p>
+            <label class="reservation_check"><input name="subscribe" type="checkbox" aria-describedby="subscribe-error" /> Recevoir les menus et offres du restaurant</label>
+            <p class="reservation_field_error" id="subscribe-error" data-reservation-field-error="subscribe" hidden></p>
+            <p class="reservation_error" data-reservation-error role="alert" aria-live="polite"></p>
             <div class="reservation_actions">
               <button type="button" class="Abtn ghost" data-reservation-back><span class="Abtn_h"><span class="Abtn_t">Retour</span></span></button>
               <button type="submit" class="Abtn" data-reservation-submit><span class="Abtn_h"><span class="Abtn_t">Envoyer la demande</span></span></button>
@@ -467,38 +474,88 @@ function bindReservation() {
   const steps = [...modal.querySelectorAll("[data-reservation-step]")];
   const submit = modal.querySelector("[data-reservation-submit]");
   const success = modal.querySelector("[data-reservation-success]");
-  const showStep = (step) => steps.forEach((item) => item.classList.toggle("A", item.dataset.reservationStep === String(step)));
-  const setError = (message = "") => modal.querySelectorAll("[data-reservation-error]").forEach((item) => { item.textContent = message; });
-  const open = () => {
+  let opener = null;
+  const currentStep = () => steps.find((item) => item.classList.contains("A") && !item.hidden) || steps[0];
+  const focusCurrentStep = () => currentStep()?.querySelector("input, textarea, button")?.focus();
+  const clearFieldErrors = () => {
+    modal.querySelectorAll("[data-reservation-field-error]").forEach((item) => {
+      item.textContent = "";
+      item.hidden = true;
+    });
+    Object.values(form.elements).forEach((field) => {
+      if (!(field instanceof HTMLElement)) return;
+      field.removeAttribute("aria-invalid");
+      field.removeAttribute("title");
+      if ("setCustomValidity" in field) field.setCustomValidity("");
+    });
+  };
+  const setFieldErrors = (fieldErrors = {}) => {
+    Object.entries(fieldErrors).forEach(([fieldName, message]) => {
+      const field = form.elements[fieldName];
+      const error = modal.querySelector(`[data-reservation-field-error="${fieldName}"]`);
+      if (!(field instanceof HTMLElement) || !error || !message) return;
+      error.textContent = message;
+      error.hidden = false;
+      field.setAttribute("aria-invalid", "true");
+      field.setAttribute("title", message);
+      if ("setCustomValidity" in field) field.setCustomValidity(message);
+    });
+  };
+  const setError = (message = "") => {
+    modal.querySelectorAll("[data-reservation-error]").forEach((item) => { item.textContent = ""; });
+    const error = currentStep()?.querySelector("[data-reservation-error]");
+    if (error) error.textContent = message;
+  };
+  const showStep = (step, options = {}) => {
+    steps.forEach((item) => {
+      const active = item.dataset.reservationStep === String(step);
+      item.classList.toggle("A", active);
+      item.hidden = !active;
+    });
+    if (options.clearErrors) {
+      setError("");
+      clearFieldErrors();
+    }
+    if (options.focus) focusCurrentStep();
+  };
+  const open = (event) => {
+    opener = event?.currentTarget instanceof HTMLElement ? event.currentTarget : document.activeElement;
     modal.classList.add("A");
     modal.setAttribute("aria-hidden", "false");
     success.hidden = true;
     form.hidden = false;
-    showStep(1);
+    showStep(1, { clearErrors: true });
     setError("");
+    requestAnimationFrame(focusCurrentStep);
   };
   const close = () => {
     modal.classList.remove("A");
     modal.setAttribute("aria-hidden", "true");
+    if (opener instanceof HTMLElement) opener.focus();
+    opener = null;
   };
 
   document.querySelectorAll("[data-reservation-open]").forEach((button) => button.addEventListener("click", open));
   modal.querySelectorAll("[data-reservation-close]").forEach((button) => button.addEventListener("click", close));
+  modal.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("A")) close();
+  });
   modal.querySelector("[data-reservation-next]")?.addEventListener("click", () => {
+    clearFieldErrors();
     const required = ["reservationDate", "reservationTime", "partySize"].map((name) => form.elements[name]);
     if (!required.every((field) => field.reportValidity())) return;
-    setError("");
-    showStep(2);
+    showStep(2, { clearErrors: true, focus: true });
   });
   modal.querySelector("[data-reservation-back]")?.addEventListener("click", () => {
-    setError("");
-    showStep(1);
+    showStep(1, { clearErrors: true, focus: true });
   });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    clearFieldErrors();
     if (!form.reportValidity()) return;
     submit.disabled = true;
+    form.setAttribute("aria-busy", "true");
     submit.querySelector(".Abtn_t").textContent = "Envoi...";
     setError("");
 
@@ -512,17 +569,20 @@ function bindReservation() {
       });
       const body = await response.json().catch(() => ({}));
       const state = mapReservationResponse(body);
-      if (state.step) showStep(state.step);
+      if (state.step) showStep(state.step, { focus: true });
       if (state.kind === "success") {
         form.hidden = true;
         success.hidden = false;
+        success.querySelector("button")?.focus();
       } else {
+        setFieldErrors(state.fieldErrors);
         setError(state.message);
       }
     } catch {
       setError(networkReservationState().message);
     } finally {
       submit.disabled = false;
+      form.removeAttribute("aria-busy");
       submit.querySelector(".Abtn_t").textContent = "Envoyer la demande";
     }
   });
