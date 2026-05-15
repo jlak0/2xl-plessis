@@ -34,6 +34,7 @@ const reservationFieldNames = new Set([
   "notes",
   "subscribe"
 ]);
+const stepOneReservationFieldNames = new Set(["reservationDate", "partySize"]);
 
 function pickFieldErrors(details) {
   if (!details || typeof details !== "object" || Array.isArray(details) || Object.getPrototypeOf(details) !== Object.prototype) {
@@ -107,7 +108,7 @@ export function mapReservationResponse(body) {
 
     return {
       kind: "field-error",
-      step: 2,
+      step: Object.keys(fieldErrors).some((field) => stepOneReservationFieldNames.has(field)) ? 1 : 2,
       message: body.message || body.error || reservationCopy.temporary,
       fieldErrors
     };

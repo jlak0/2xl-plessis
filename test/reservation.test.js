@@ -133,6 +133,40 @@ test("maps field-level validation details to form field errors", () => {
   });
 });
 
+test("maps reservation date validation errors back to step one", () => {
+  const state = mapReservationResponse({
+    error: "Validation error",
+    message: "Invalid fields",
+    details: {
+      reservationDate: "Bad date"
+    }
+  });
+
+  assert.equal(state.kind, "field-error");
+  assert.equal(state.step, 1);
+  assert.equal(state.message, "Invalid fields");
+  assert.deepEqual(state.fieldErrors, {
+    reservationDate: "Bad date"
+  });
+});
+
+test("maps party size validation errors back to step one", () => {
+  const state = mapReservationResponse({
+    error: "Validation error",
+    message: "Invalid fields",
+    details: {
+      partySize: "Too many guests"
+    }
+  });
+
+  assert.equal(state.kind, "field-error");
+  assert.equal(state.step, 1);
+  assert.equal(state.message, "Invalid fields");
+  assert.deepEqual(state.fieldErrors, {
+    partySize: "Too many guests"
+  });
+});
+
 test("maps validation errors with array details to generic temporary copy", () => {
   const state = mapReservationResponse({
     error: "Validation error",
