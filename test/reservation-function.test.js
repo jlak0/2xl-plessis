@@ -16,6 +16,14 @@ async function json(response) {
   return response.json();
 }
 
+function assertRequiredFieldDetails(body) {
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.customerName, "Name must be at least 2 characters.");
+  assert.equal(body.details.customerPhone, "Phone must be 6 to 20 characters.");
+  assert.equal(body.details.partySize, "Party size must be between 1 and 300.");
+  assert.equal(body.details.reservationDate, "Reservation date must be a valid date-time.");
+}
+
 afterEach(() => {
   globalThis.fetch = fetch;
 });
@@ -36,6 +44,22 @@ test("returns validation errors for missing required fields", async () => {
   assert.equal(body.details.customerPhone, "Phone must be 6 to 20 characters.");
   assert.equal(body.details.partySize, "Party size must be between 1 and 300.");
   assert.equal(body.details.reservationDate, "Reservation date must be a valid date-time.");
+});
+
+test("returns validation errors for null JSON bodies", async () => {
+  const response = await onRequest({ request: request("POST", null) });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assertRequiredFieldDetails(body);
+});
+
+test("returns validation errors for string JSON bodies", async () => {
+  const response = await onRequest({ request: request("POST", "hello") });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assertRequiredFieldDetails(body);
 });
 
 test("rejects non-string customer names", async () => {

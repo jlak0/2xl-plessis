@@ -85,6 +85,7 @@ export async function onRequest(context) {
   } catch {
     return json({ error: "Invalid JSON", message: "Request body must be valid JSON." }, 400);
   }
+  if (input === null || Array.isArray(input) || typeof input !== "object") input = {};
 
   const payload = normalize(input);
   const details = validate(payload);
