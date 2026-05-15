@@ -252,10 +252,32 @@ test("injects restaurant id and proxies valid requests upstream", async () => {
   assert.equal(upstreamBody.customerName, "Marie Dupont");
   assert.equal(upstreamBody.customerPhone, "+33123456789");
   assert.equal(upstreamBody.partySize, 4);
-  assert.equal(upstreamBody.reservationDate, "2026-05-15T19:30:00+02:00");
+  assert.equal(upstreamBody.reservationDate, "2026-05-15T17:30:00Z");
   assert.equal(upstreamBody.subscribe, true);
   assert.equal("customerEmail" in upstreamBody, false);
   assert.equal("notes" in upstreamBody, false);
+});
+
+test("keeps UTC reservation dates unchanged when proxying upstream", async () => {
+  let receivedInit = {};
+  globalThis.fetch = async (_url, init) => {
+    receivedInit = init;
+    return Response.json({ success: true }, { status: 200 });
+  };
+
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T17:30:00Z"
+    })
+  });
+
+  assert.equal(response.status, 200);
+
+  const upstreamBody = JSON.parse(receivedInit.body);
+  assert.equal(upstreamBody.reservationDate, "2026-05-15T17:30:00Z");
 });
 
 test("keeps numeric integer party size valid", async () => {

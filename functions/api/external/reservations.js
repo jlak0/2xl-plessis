@@ -42,6 +42,10 @@ function normalizeString(value) {
   return typeof value === "string" ? value.trim() : value;
 }
 
+function normalizeDateTimeToUtc(value) {
+  return new Date(value).toISOString().replace(".000Z", "Z");
+}
+
 function normalize(input) {
   const output = {
     restaurantId,
@@ -97,6 +101,7 @@ export async function onRequest(context) {
     return json({ error: "Validation error", message: "Please check the reservation fields.", details }, 400);
   }
   delete payload.notesRawLength;
+  payload.reservationDate = normalizeDateTimeToUtc(payload.reservationDate);
 
   let upstream;
   try {
