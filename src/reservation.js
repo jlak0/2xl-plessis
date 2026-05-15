@@ -20,7 +20,9 @@ function timezoneOffset(date) {
 
 function parsePartySize(value) {
   const text = String(value ?? "").trim();
-  return /^\d+$/.test(text) ? Number(text) : Number.NaN;
+  if (!/^\d+$/.test(text)) return Number.NaN;
+  const partySize = Number(text);
+  return Number.isSafeInteger(partySize) && partySize >= 1 && partySize <= 300 ? partySize : Number.NaN;
 }
 
 const reservationFieldNames = new Set([

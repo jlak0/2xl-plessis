@@ -51,8 +51,8 @@ test("does not accept mixed strings as numeric party sizes", () => {
   assert.equal(Number.isNaN(payload.partySize), true);
 });
 
-test("only accepts decimal positive-integer strings as party sizes", () => {
-  for (const partySize of ["", " ", null, "4.5", "0x10", "Infinity"]) {
+test("only accepts decimal positive-integer strings within the reservation limit as party sizes", () => {
+  for (const partySize of ["", " ", null, "0", "4.5", "0x10", "301", "999999999999999999999999999999999999", "9".repeat(400), "Infinity"]) {
     const payload = buildReservationPayload({
       customerName: "Marie Dupont",
       customerPhone: "+33123456789",
@@ -64,15 +64,21 @@ test("only accepts decimal positive-integer strings as party sizes", () => {
     assert.equal(Number.isNaN(payload.partySize), true);
   }
 
-  const payload = buildReservationPayload({
-    customerName: "Marie Dupont",
-    customerPhone: "+33123456789",
-    partySize: "4",
-    reservationDate: "2026-05-15",
-    reservationTime: "19:30"
-  });
+  for (const [partySize, expected] of [
+    ["1", 1],
+    ["4", 4],
+    ["300", 300]
+  ]) {
+    const payload = buildReservationPayload({
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize,
+      reservationDate: "2026-05-15",
+      reservationTime: "19:30"
+    });
 
-  assert.equal(payload.partySize, 4);
+    assert.equal(payload.partySize, expected);
+  }
 });
 
 test("success copy does not expose reservation id or final confirmation", () => {
