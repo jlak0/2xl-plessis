@@ -39,7 +39,7 @@ export function buildReservationPayload(values) {
   const payload = {
     customerName: String(values.customerName || "").trim(),
     customerPhone: String(values.customerPhone || "").trim(),
-    partySize: Number.parseInt(values.partySize, 10),
+    partySize: Number(values.partySize),
     reservationDate: buildReservationDateTime(values.reservationDate, values.reservationTime),
     subscribe: Boolean(values.subscribe)
   };
@@ -69,7 +69,7 @@ export function mapReservationResponse(body) {
     return { kind: "capacity-error", step: 1, message: reservationCopy.capacity, fieldErrors: {} };
   }
 
-  if (body?.details && typeof body.details === "object") {
+  if (body?.error === "Validation error" && body?.details && typeof body.details === "object") {
     return {
       kind: "field-error",
       step: 2,

@@ -39,6 +39,18 @@ test("builds browser payload without exposing editable restaurant id", () => {
   assert.equal("customerEmail" in payload, false);
 });
 
+test("does not accept mixed strings as numeric party sizes", () => {
+  const payload = buildReservationPayload({
+    customerName: "Marie Dupont",
+    customerPhone: "+33123456789",
+    partySize: "4abc",
+    reservationDate: "2026-05-15",
+    reservationTime: "19:30"
+  });
+
+  assert.equal(Number.isNaN(payload.partySize), true);
+});
+
 test("success copy does not expose reservation id or final confirmation", () => {
   const state = mapReservationResponse({ success: true, reservationId: 123 });
 
@@ -94,6 +106,23 @@ test("maps unknown upstream errors to generic temporary copy", () => {
   const state = mapReservationResponse({
     error: "Internal upstream reason",
     message: "Database timeout"
+  });
+
+  assert.deepEqual(state, {
+    kind: "temporary-error",
+    step: 2,
+    message: reservationCopy.temporary,
+    fieldErrors: {}
+  });
+});
+
+test("maps unknown upstream errors with details to generic temporary copy", () => {
+  const state = mapReservationResponse({
+    error: "Internal upstream reason",
+    message: "Database timeout",
+    details: {
+      traceId: "abc123"
+    }
   });
 
   assert.deepEqual(state, {
