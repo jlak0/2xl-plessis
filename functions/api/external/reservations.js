@@ -10,18 +10,27 @@ function isEmail(value) {
 }
 
 function isDateTime(value) {
-  if (typeof value !== "string" || !/T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/.test(value)) return false;
-  return !Number.isNaN(new Date(value).getTime());
+  if (typeof value !== "string") return false;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|[+-]\d{2}:\d{2})$/);
+  if (!match) return false;
+
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const second = Number(secondText);
+  if (hour > 23 || minute > 59 || second > 59) return false;
+
+  const utcDate = new Date(Date.UTC(year, month - 1, day));
+  return utcDate.getUTCFullYear() === year
+    && utcDate.getUTCMonth() === month - 1
+    && utcDate.getUTCDate() === day;
 }
 
 function normalizeString(value) {
   return typeof value === "string" ? value.trim() : value;
-}
-
-function normalizePartySize(value) {
-  if (Number.isInteger(value)) return value;
-  if (typeof value === "string" && /^\d+$/.test(value.trim())) return Number(value.trim());
-  return value;
 }
 
 function normalize(input) {
@@ -29,15 +38,19 @@ function normalize(input) {
     restaurantId,
     customerName: normalizeString(input.customerName),
     customerPhone: normalizeString(input.customerPhone),
-    partySize: normalizePartySize(input.partySize),
+    partySize: input.partySize,
     reservationDate: normalizeString(input.reservationDate),
     subscribe: input.subscribe === undefined ? false : input.subscribe
   };
 
-  const customerEmail = normalizeString(input.customerEmail);
-  const notes = normalizeString(input.notes);
-  if (customerEmail) output.customerEmail = customerEmail;
-  if (notes) output.notes = notes;
+  if ("customerEmail" in input) {
+    const customerEmail = normalizeString(input.customerEmail);
+    if (customerEmail !== "") output.customerEmail = customerEmail;
+  }
+  if ("notes" in input) {
+    const notes = normalizeString(input.notes);
+    if (notes !== "") output.notes = notes;
+  }
   return output;
 }
 
@@ -47,8 +60,8 @@ function validate(payload) {
   if (typeof payload.customerPhone !== "string" || payload.customerPhone.length < 6 || payload.customerPhone.length > 20) details.customerPhone = "Phone must be 6 to 20 characters.";
   if (!Number.isInteger(payload.partySize) || payload.partySize < 1 || payload.partySize > 300) details.partySize = "Party size must be between 1 and 300.";
   if (!isDateTime(payload.reservationDate)) details.reservationDate = "Reservation date must be a valid date-time.";
-  if (payload.customerEmail && (typeof payload.customerEmail !== "string" || !isEmail(payload.customerEmail))) details.customerEmail = "Email must be valid.";
-  if (payload.notes && (typeof payload.notes !== "string" || payload.notes.length > 500)) details.notes = "Notes must be 500 characters or fewer.";
+  if ("customerEmail" in payload && (typeof payload.customerEmail !== "string" || !isEmail(payload.customerEmail))) details.customerEmail = "Email must be valid.";
+  if ("notes" in payload && (typeof payload.notes !== "string" || payload.notes.length > 500)) details.notes = "Notes must be 500 characters or fewer.";
   if (typeof payload.subscribe !== "boolean") details.subscribe = "Subscribe must be a boolean.";
   return details;
 }

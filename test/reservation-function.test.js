@@ -71,7 +71,7 @@ test("rejects non-string customer phones", async () => {
 });
 
 test("rejects non-integer party sizes", async () => {
-  for (const partySize of ["4abc", 4.5]) {
+  for (const partySize of ["4abc", 4.5, "4"]) {
     const response = await onRequest({
       request: request("POST", {
         customerName: "Marie Dupont",
@@ -85,6 +85,46 @@ test("rejects non-integer party sizes", async () => {
     assert.equal(response.status, 400);
     assert.equal(body.error, "Validation error");
     assert.equal(body.details.partySize, "Party size must be between 1 and 300.");
+  }
+});
+
+test("rejects invalid calendar reservation dates", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-02-30T19:30:00+02:00"
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.reservationDate, "Reservation date must be a valid date-time.");
+});
+
+test("rejects non-string optional fields", async () => {
+  const cases = [
+    ["customerEmail", false, "Email must be valid."],
+    ["notes", 0, "Notes must be 500 characters or fewer."]
+  ];
+
+  for (const [field, value, message] of cases) {
+    const response = await onRequest({
+      request: request("POST", {
+        customerName: "Marie Dupont",
+        customerPhone: "+33123456789",
+        partySize: 4,
+        reservationDate: "2026-05-15T19:30:00+02:00",
+        [field]: value
+      })
+    });
+    const body = await json(response);
+
+    assert.equal(response.status, 400);
+    assert.equal(body.error, "Validation error");
+    assert.equal(body.details[field], message);
   }
 });
 
@@ -141,6 +181,28 @@ test("injects restaurant id and proxies valid requests upstream", async () => {
   assert.equal(upstreamBody.subscribe, true);
   assert.equal("customerEmail" in upstreamBody, false);
   assert.equal("notes" in upstreamBody, false);
+});
+
+test("keeps numeric integer party size valid", async () => {
+  let receivedInit = {};
+  globalThis.fetch = async (_url, init) => {
+    receivedInit = init;
+    return Response.json({ success: true }, { status: 200 });
+  };
+
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00"
+    })
+  });
+
+  assert.equal(response.status, 200);
+
+  const upstreamBody = JSON.parse(receivedInit.body);
+  assert.equal(upstreamBody.partySize, 4);
 });
 
 test("defaults missing subscribe to false when proxying valid requests", async () => {
