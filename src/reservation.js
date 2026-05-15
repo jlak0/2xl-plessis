@@ -21,6 +21,17 @@ function timezoneOffset(date) {
 export function buildReservationDateTime(dateValue, timeValue) {
   const date = new Date(`${dateValue}T${timeValue}:00`);
   if (Number.isNaN(date.getTime())) return "";
+  const [year, month, day] = String(dateValue).split("-").map((part) => Number.parseInt(part, 10));
+  const [hour, minute] = String(timeValue).split(":").map((part) => Number.parseInt(part, 10));
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() + 1 !== month ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute
+  ) {
+    return "";
+  }
   return `${dateValue}T${timeValue}:00${timezoneOffset(date)}`;
 }
 
@@ -70,7 +81,7 @@ export function mapReservationResponse(body) {
   return {
     kind: "temporary-error",
     step: 2,
-    message: body?.message || body?.error || reservationCopy.temporary,
+    message: reservationCopy.temporary,
     fieldErrors: {}
   };
 }

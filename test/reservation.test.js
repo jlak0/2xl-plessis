@@ -12,6 +12,10 @@ test("builds ISO 8601 reservation date-time with timezone offset", () => {
   assert.match(buildReservationDateTime("2026-05-15", "19:30"), /^2026-05-15T19:30:00[+-]\d{2}:\d{2}$/);
 });
 
+test("rejects invalid calendar reservation date-times", () => {
+  assert.equal(buildReservationDateTime("2026-02-30", "19:30"), "");
+});
+
 test("builds browser payload without exposing editable restaurant id", () => {
   const payload = buildReservationPayload({
     customerName: " Marie Dupont ",
@@ -80,6 +84,22 @@ test("maps field-level validation details to form field errors", () => {
   assert.equal(state.kind, "field-error");
   assert.equal(state.step, 2);
   assert.equal(state.message, "Invalid fields");
-  assert.equal(state.fieldErrors.customerPhone, "Phone is required");
-  assert.equal(state.fieldErrors.customerEmail, "Email is invalid");
+  assert.deepEqual(state.fieldErrors, {
+    customerPhone: "Phone is required",
+    customerEmail: "Email is invalid"
+  });
+});
+
+test("maps unknown upstream errors to generic temporary copy", () => {
+  const state = mapReservationResponse({
+    error: "Internal upstream reason",
+    message: "Database timeout"
+  });
+
+  assert.deepEqual(state, {
+    kind: "temporary-error",
+    step: 2,
+    message: reservationCopy.temporary,
+    fieldErrors: {}
+  });
 });
