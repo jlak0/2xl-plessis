@@ -4,6 +4,7 @@ import {
   buildReservationDateTime,
   buildReservationPayload,
   mapReservationResponse,
+  networkReservationState,
   reservationCopy,
   restaurantId
 } from "../src/reservation.js";
@@ -192,6 +193,15 @@ test("maps unknown upstream errors with details to generic temporary copy", () =
     kind: "temporary-error",
     step: 2,
     message: reservationCopy.temporary,
+    fieldErrors: {}
+  });
+});
+
+test("provides a dedicated network failure state", () => {
+  assert.deepEqual(networkReservationState(), {
+    kind: "network-error",
+    step: 2,
+    message: reservationCopy.network,
     fieldErrors: {}
   });
 });

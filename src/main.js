@@ -6,21 +6,29 @@ import {
   homeCards,
   homeHero,
   homeSlider,
+  openingHours,
+  pricing,
+  pricingNotes,
   productDetails,
   productGallery,
   products,
   team,
   workSteps
 } from "./data.js";
+import {
+  buildReservationPayload,
+  mapReservationResponse,
+  networkReservationState,
+  reservationCopy
+} from "./reservation.js";
 
 const app = document.querySelector("#app");
+const restaurantName = "2XL";
+const restaurantAddress = "Centre commercial val vert zac croix blanche 91220 Plessis-Pâté";
+const restaurantAddressLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurantAddress)}`;
 
 const logo = `
-  <svg viewBox="0 0 28 28" aria-hidden="true">
-    <path d="M4.2 12.7c.5-5 4.3-8.5 9.8-8.5s9.3 3.5 9.8 8.5h-2.7c-.5-3.5-3-5.9-7.1-5.9s-6.6 2.4-7.1 5.9H4.2Z" />
-    <path d="M2.4 14.7h23.2c-.8 5.5-5.4 9.1-11.6 9.1S3.2 20.2 2.4 14.7Z" />
-    <path d="M7.3 11.3h13.4v2.1H7.3v-2.1Z" />
-  </svg>`;
+  <img src="${asset("images/2xl-logo.png")}" alt="${restaurantName} Restaurant" loading="eager" decoding="async" />`;
 
 function media(item, className = "") {
   const src = asset(item.src || item.image);
@@ -39,15 +47,17 @@ function button(label, href = "#", extra = "") {
 function nav() {
   return `
     <nav class="nav grid-vw">
-      <h1 class="nav_logo"><a href="/" data-link aria-label="Mesa Buffet">${logo}</a></h1>
+      <h1 class="nav_logo"><a href="/" data-link aria-label="${restaurantName}">${logo}</a></h1>
       <div class="nav_menu">
         <a href="/work" data-link>Stations</a>
         <a href="/info" data-link>Info</a>
+        <button type="button" data-reservation-open>Réserver</button>
         <button type="button" data-contact>Contact</button>
       </div>
       <div class="nav_contact" data-contact-panel>
         <p>E-mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
         <p>Téléphone <a href="tel:+15550101988">+1 555 010 1988</a></p>
+        <p>Adresse <a href="${restaurantAddressLink}" target="_blank" rel="noreferrer">${restaurantAddress}</a></p>
       </div>
     </nav>`;
 }
@@ -58,7 +68,7 @@ function footer() {
       <div class="foot_h">
         <div class="grid foot_tp foot_brand">
           <span>${logo}</span>
-          <b>Mesa Buffet</b>
+          <b>${restaurantName}</b>
         </div>
         <div class="grid foot_bp">
           <form class="newsletter">
@@ -68,6 +78,7 @@ function footer() {
             <p class="newsletter_ok">Inscription confirmée</p>
           </form>
           <div>
+            <a href="${restaurantAddressLink}" target="_blank" rel="noreferrer">${restaurantAddress}</a>
             <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a>
             <a href="tel:+15550101988">+1 555 010 1988</a>
             <a href="tel:+15550101989">+1 555 010 1989</a>
@@ -97,6 +108,47 @@ function cookieUi() {
           ${button("Valider la sélection", "#", "modal-close")}
           ${button("Tout accepter", "#", "modal-close")}
           <button class="modal_x" type="button" aria-label="Fermer">×</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function reservationModal() {
+  return `
+    <div class="modal reservation_modal" data-reservation-modal aria-hidden="true">
+      <div class="modal_h reservation_h" role="dialog" aria-modal="true" aria-labelledby="reservation-title">
+        <button class="modal_x" type="button" aria-label="Fermer" data-reservation-close>×</button>
+        <div class="reservation_top">
+          <p class="p2">2XL Restaurant</p>
+          <h2 id="reservation-title" class="h2">Réserver une table</h2>
+        </div>
+        <form class="reservation_form" data-reservation-form novalidate>
+          <div class="reservation_step A" data-reservation-step="1">
+            <p class="p1">Quand venir ?</p>
+            <label>Date<input name="reservationDate" type="date" required /></label>
+            <label>Heure<input name="reservationTime" type="time" required /></label>
+            <label>Personnes<input name="partySize" type="number" min="1" max="300" value="2" required /></label>
+            <p class="reservation_error" data-reservation-error></p>
+            <button type="button" class="Abtn reservation_next" data-reservation-next><span class="Abtn_h"><span class="Abtn_t">Continuer</span></span></button>
+          </div>
+          <div class="reservation_step" data-reservation-step="2">
+            <p class="p1">Vos coordonnées</p>
+            <label>Nom<input name="customerName" autocomplete="name" minlength="2" required /></label>
+            <label>Téléphone<input name="customerPhone" autocomplete="tel" minlength="6" maxlength="20" required /></label>
+            <label>Email <span>optionnel</span><input name="customerEmail" type="email" autocomplete="email" /></label>
+            <label>Notes <span>optionnel</span><textarea name="notes" maxlength="500" rows="3"></textarea></label>
+            <label class="reservation_check"><input name="subscribe" type="checkbox" /> Recevoir les menus et offres du restaurant</label>
+            <p class="reservation_error" data-reservation-error></p>
+            <div class="reservation_actions">
+              <button type="button" class="Abtn ghost" data-reservation-back><span class="Abtn_h"><span class="Abtn_t">Retour</span></span></button>
+              <button type="submit" class="Abtn" data-reservation-submit><span class="Abtn_h"><span class="Abtn_t">Envoyer la demande</span></span></button>
+            </div>
+          </div>
+        </form>
+        <div class="reservation_success" data-reservation-success hidden>
+          <p class="p2">${reservationCopy.successTitle}</p>
+          <h3 class="h2">${reservationCopy.successMessage}</h3>
+          <button type="button" class="Abtn" data-reservation-close><span class="Abtn_h"><span class="Abtn_t">Fermer</span></span></button>
         </div>
       </div>
     </div>`;
@@ -231,6 +283,53 @@ function cardsSection(title, text, items, options = {}) {
     </section>`;
 }
 
+function pricingSection() {
+  return `
+    <section class="pricing grid-vw reveal" id="tarifs">
+      <div class="top">
+        <h2 class="h1">Tarifs</h2>
+        <p class="p1">Prix et horaires du buffet pour le déjeuner et le dîner.</p>
+        <div class="opening_hours" aria-label="Horaires d'ouverture">
+          <div class="opening_hours_grid">
+            ${openingHours.map((item) => `
+              <article class="opening_hours_item">
+                <p>${item.name}</p>
+                <b>${item.hours}</b>
+                <small>${item.note}</small>
+              </article>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="pricing_grid">
+        ${pricing.map((service) => `
+          <article class="pricing_service">
+            <div class="pricing_head">
+              <h3 class="h2">${service.name}</h3>
+              <p>${service.hours}</p>
+            </div>
+            <div class="pricing_table" role="table" aria-label="Tarifs ${service.name}">
+              <div class="pricing_row pricing_header" role="row">
+                <span role="columnheader">Jour</span>
+                <span role="columnheader">Adulte</span>
+                <span role="columnheader">Enfant<br><small>-1.4M et -12ans</small></span>
+                <span role="columnheader">Enfant<br><small>-1M et -5ans</small></span>
+              </div>
+              ${service.rows.map((row) => `
+                <div class="pricing_row" role="row">
+                  <span role="cell">${row.period}${row.note ? `<small>${row.note}</small>` : ""}</span>
+                  <b role="cell" data-label="Adulte" data-short="Adulte">${row.adult}</b>
+                  <b role="cell" data-label="Enfant -1.4M et -12ans" data-short="-1.4M / -12ans">${row.childUnderTwelve}</b>
+                  <b role="cell" data-label="Enfant -1M et -5ans" data-short="-1M / -5ans">${row.childUnderOneMeter}</b>
+                </div>`).join("")}
+            </div>
+          </article>`).join("")}
+      </div>
+      <div class="pricing_notes">
+        ${pricingNotes.map((detail) => `<p>${detail}</p>`).join("")}
+      </div>
+    </section>`;
+}
+
 function stackedCases() {
   return `
     <section class="home_stck" data-stack-text>
@@ -264,7 +363,7 @@ function homePage() {
   return `
     <main class="home">
       ${hero({ title: "Buffet en libre-service", slides: homeHero, cta: "Voir les stations" })}
-      ${textBlock("Mesa Buffet est un restaurant moderne et lumineux, organisé autour de stations fraîches, d'un réassort régulier et de la liberté de composer chaque assiette à votre façon.", "anchorHome-1")}
+      ${textBlock(`${restaurantName} est un restaurant moderne et lumineux, organisé autour de stations fraîches, d'un réassort régulier et de la liberté de composer chaque assiette à votre façon.`, "anchorHome-1")}
       ${featureSlider(homeSlider)}
       ${homeCardsStack(homeCards)}
       ${stackedCases()}
@@ -298,7 +397,8 @@ function infoPage() {
           <div><span class="h1">est à table</span></div>
         </div>
       </section>
-      ${textBlock("Mesa Buffet est pensé pour une abondance quotidienne : une salle nette, des comptoirs généreux, une circulation claire et des plats fraîchement préparés du début à la fin du service.")}
+      ${textBlock(`${restaurantName} est pensé pour une abondance quotidienne : une salle nette, des comptoirs généreux, une circulation claire et des plats fraîchement préparés du début à la fin du service.`)}
+      ${pricingSection()}
       ${featureSlider([{ image: "images/generated/buffet-layout.png", title: "Chaque station facilite le choix, le réassort et la circulation" }])}
       ${cardsSection("Notre équipe", "La cuisine et la salle travaillent ensemble pour garder le buffet plein, frais et simple à parcourir.", team)}
       ${featureSlider(clients.map((item) => ({ image: item.image, title: item.title, text: item.text })), "cards_slider")}
@@ -354,9 +454,78 @@ function productPage(product) {
 function render() {
   const route = getRoute(window.location.pathname);
   const body = route.page === "home" ? homePage() : route.page === "work" ? workPage() : route.page === "info" ? infoPage() : productPage(route.product);
-  app.innerHTML = `${nav()}${body}${cookieUi()}`;
+  app.innerHTML = `${nav()}${body}${reservationModal()}${cookieUi()}`;
   bindInteractions();
   requestAnimationFrame(() => document.body.classList.add("loaded"));
+}
+
+function bindReservation() {
+  const modal = document.querySelector("[data-reservation-modal]");
+  const form = document.querySelector("[data-reservation-form]");
+  if (!modal || !form) return;
+
+  const steps = [...modal.querySelectorAll("[data-reservation-step]")];
+  const submit = modal.querySelector("[data-reservation-submit]");
+  const success = modal.querySelector("[data-reservation-success]");
+  const showStep = (step) => steps.forEach((item) => item.classList.toggle("A", item.dataset.reservationStep === String(step)));
+  const setError = (message = "") => modal.querySelectorAll("[data-reservation-error]").forEach((item) => { item.textContent = message; });
+  const open = () => {
+    modal.classList.add("A");
+    modal.setAttribute("aria-hidden", "false");
+    success.hidden = true;
+    form.hidden = false;
+    showStep(1);
+    setError("");
+  };
+  const close = () => {
+    modal.classList.remove("A");
+    modal.setAttribute("aria-hidden", "true");
+  };
+
+  document.querySelectorAll("[data-reservation-open]").forEach((button) => button.addEventListener("click", open));
+  modal.querySelectorAll("[data-reservation-close]").forEach((button) => button.addEventListener("click", close));
+  modal.querySelector("[data-reservation-next]")?.addEventListener("click", () => {
+    const required = ["reservationDate", "reservationTime", "partySize"].map((name) => form.elements[name]);
+    if (!required.every((field) => field.reportValidity())) return;
+    setError("");
+    showStep(2);
+  });
+  modal.querySelector("[data-reservation-back]")?.addEventListener("click", () => {
+    setError("");
+    showStep(1);
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    submit.disabled = true;
+    submit.querySelector(".Abtn_t").textContent = "Envoi...";
+    setError("");
+
+    try {
+      const values = Object.fromEntries(new FormData(form).entries());
+      values.subscribe = form.elements.subscribe.checked;
+      const response = await fetch("/api/external/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildReservationPayload(values))
+      });
+      const body = await response.json().catch(() => ({}));
+      const state = mapReservationResponse(body);
+      if (state.step) showStep(state.step);
+      if (state.kind === "success") {
+        form.hidden = true;
+        success.hidden = false;
+      } else {
+        setError(state.message);
+      }
+    } catch {
+      setError(networkReservationState().message);
+    } finally {
+      submit.disabled = false;
+      submit.querySelector(".Abtn_t").textContent = "Envoyer la demande";
+    }
+  });
 }
 
 function bindInteractions() {
@@ -374,8 +543,9 @@ function bindInteractions() {
   document.querySelector("[data-contact]")?.addEventListener("click", () => {
     document.querySelector("[data-contact-panel]")?.classList.toggle("A");
   });
+  bindReservation();
 
-  if (window.__nubeHeroCleanup) window.__nubeHeroCleanup();
+  if (window.__mesaHeroCleanup) window.__mesaHeroCleanup();
   const heroCleanups = [];
   document.querySelectorAll("[data-hero]").forEach((heroEl) => {
     const slides = [...heroEl.querySelectorAll(".hero_el")];
@@ -416,14 +586,14 @@ function bindInteractions() {
     rafId = requestAnimationFrame(tick);
     heroCleanups.push(() => cancelAnimationFrame(rafId));
   });
-  window.__nubeHeroCleanup = () => {
+  window.__mesaHeroCleanup = () => {
     heroCleanups.forEach((cleanup) => cleanup());
-    window.__nubeHeroCleanup = null;
+    window.__mesaHeroCleanup = null;
   };
 
-  if (window.__nubeHeroParallaxCleanup) {
-    window.__nubeHeroParallaxCleanup();
-    window.__nubeHeroParallaxCleanup = null;
+  if (window.__mesaHeroParallaxCleanup) {
+    window.__mesaHeroParallaxCleanup();
+    window.__mesaHeroParallaxCleanup = null;
   }
 
   initHomeScrollSlider();
@@ -460,9 +630,9 @@ function bindInteractions() {
   document.querySelectorAll(".modal_x, .modal-close").forEach((close) => close.addEventListener("click", () => close.closest(".modal")?.classList.remove("A")));
 
   const cookie = document.querySelector("[data-cookie]");
-  if (localStorage.getItem("nubeCookieOk")) cookie?.remove();
+  if (localStorage.getItem("mesaCookieOk")) cookie?.remove();
   cookie?.querySelector("[data-cookie-accept]")?.addEventListener("click", () => {
-    localStorage.setItem("nubeCookieOk", "1");
+    localStorage.setItem("mesaCookieOk", "1");
     cookie.remove();
   });
   cookie?.querySelector("[data-cookie-manage]")?.addEventListener("click", () => cookie.querySelector("[data-cookie-modal]")?.classList.add("A"));
@@ -481,7 +651,7 @@ function bindInteractions() {
 }
 
 function initTextReveal() {
-  if (window.__nubeTextRevealCleanup) window.__nubeTextRevealCleanup();
+  if (window.__mesaTextRevealCleanup) window.__mesaTextRevealCleanup();
 
   const blocks = [...document.querySelectorAll("[data-txrev]")].map((el) => {
     const text = el.textContent.trim().replace(/\s+/g, " ");
@@ -499,7 +669,7 @@ function initTextReveal() {
   });
 
   if (!blocks.length) {
-    window.__nubeTextRevealCleanup = null;
+    window.__mesaTextRevealCleanup = null;
     return;
   }
 
@@ -534,7 +704,7 @@ function initTextReveal() {
   update();
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", requestUpdate);
-  window.__nubeTextRevealCleanup = () => {
+  window.__mesaTextRevealCleanup = () => {
     if (rafId) cancelAnimationFrame(rafId);
     window.removeEventListener("scroll", requestUpdate);
     window.removeEventListener("resize", requestUpdate);
@@ -542,7 +712,7 @@ function initTextReveal() {
 }
 
 function initHomeScrollSlider() {
-  if (window.__nubeHomeSliderCleanup) window.__nubeHomeSliderCleanup();
+  if (window.__mesaHomeSliderCleanup) window.__mesaHomeSliderCleanup();
 
   const sliders = [...document.querySelectorAll("[data-home-slider]")].map((slider) => {
     const slides = [...slider.querySelectorAll(".el")];
@@ -638,7 +808,7 @@ function initHomeScrollSlider() {
   });
 
   if (!sliders.length) {
-    window.__nubeHomeSliderCleanup = null;
+    window.__mesaHomeSliderCleanup = null;
     return;
   }
 
@@ -692,7 +862,7 @@ function initHomeScrollSlider() {
   };
 
   rafId = requestAnimationFrame(update);
-  window.__nubeHomeSliderCleanup = () => {
+  window.__mesaHomeSliderCleanup = () => {
     if (rafId) cancelAnimationFrame(rafId);
     sliders.forEach((state) => state.timers.forEach((timer) => clearTimeout(timer)));
   };
@@ -793,7 +963,7 @@ function initHomeCardsStack() {
 }
 
 function initHomeStackText() {
-  if (window.__nubeStackTextCleanup) window.__nubeStackTextCleanup();
+  if (window.__mesaStackTextCleanup) window.__mesaStackTextCleanup();
 
   const sections = [...document.querySelectorAll("[data-stack-text]")].map((section) => ({
     section,
@@ -801,7 +971,7 @@ function initHomeStackText() {
   })).filter((item) => item.texts.length > 1);
 
   if (!sections.length) {
-    window.__nubeStackTextCleanup = null;
+    window.__mesaStackTextCleanup = null;
     return;
   }
 
@@ -836,7 +1006,7 @@ function initHomeStackText() {
   update();
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", requestUpdate);
-  window.__nubeStackTextCleanup = () => {
+  window.__mesaStackTextCleanup = () => {
     if (rafId) cancelAnimationFrame(rafId);
     window.removeEventListener("scroll", requestUpdate);
     window.removeEventListener("resize", requestUpdate);
@@ -844,7 +1014,7 @@ function initHomeStackText() {
 }
 
 function initHomeCaseMotion() {
-  if (window.__nubeCaseMotionCleanup) window.__nubeCaseMotionCleanup();
+  if (window.__mesaCaseMotionCleanup) window.__mesaCaseMotionCleanup();
 
   const cases = [...document.querySelectorAll(".home_stck .case_el")].map((el, index) => ({
     el,
@@ -855,7 +1025,7 @@ function initHomeCaseMotion() {
   })).filter((item) => item.mover);
 
   if (!cases.length) {
-    window.__nubeCaseMotionCleanup = null;
+    window.__mesaCaseMotionCleanup = null;
     return;
   }
 
@@ -886,7 +1056,7 @@ function initHomeCaseMotion() {
   update();
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", requestUpdate);
-  window.__nubeCaseMotionCleanup = () => {
+  window.__mesaCaseMotionCleanup = () => {
     if (rafId) cancelAnimationFrame(rafId);
     window.removeEventListener("scroll", requestUpdate);
     window.removeEventListener("resize", requestUpdate);

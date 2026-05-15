@@ -120,3 +120,12 @@ export function mapReservationResponse(body) {
     fieldErrors: {}
   };
 }
+
+export function networkReservationState() {
+  return {
+    kind: "network-error",
+    step: 2,
+    message: reservationCopy.network,
+    fieldErrors: {}
+  };
+}
