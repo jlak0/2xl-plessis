@@ -104,6 +104,22 @@ test("rejects invalid calendar reservation dates", async () => {
   assert.equal(body.details.reservationDate, "Reservation date must be a valid date-time.");
 });
 
+test("rejects invalid reservation timezone offsets", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+99:99"
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.reservationDate, "Reservation date must be a valid date-time.");
+});
+
 test("rejects non-string optional fields", async () => {
   const cases = [
     ["customerEmail", false, "Email must be valid."],
@@ -126,6 +142,23 @@ test("rejects non-string optional fields", async () => {
     assert.equal(body.error, "Validation error");
     assert.equal(body.details[field], message);
   }
+});
+
+test("rejects notes over 500 raw characters before trimming", async () => {
+  const response = await onRequest({
+    request: request("POST", {
+      customerName: "Marie Dupont",
+      customerPhone: "+33123456789",
+      partySize: 4,
+      reservationDate: "2026-05-15T19:30:00+02:00",
+      notes: `${" ".repeat(10)}${"a".repeat(500)}${" ".repeat(10)}`
+    })
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Validation error");
+  assert.equal(body.details.notes, "Notes must be 500 characters or fewer.");
 });
 
 test("rejects non-boolean subscribe values", async () => {

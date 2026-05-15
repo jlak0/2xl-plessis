@@ -14,7 +14,7 @@ function isDateTime(value) {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|[+-]\d{2}:\d{2})$/);
   if (!match) return false;
 
-  const [, yearText, monthText, dayText, hourText, minuteText, secondText] = match;
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, offset] = match;
   const year = Number(yearText);
   const month = Number(monthText);
   const day = Number(dayText);
@@ -22,6 +22,11 @@ function isDateTime(value) {
   const minute = Number(minuteText);
   const second = Number(secondText);
   if (hour > 23 || minute > 59 || second > 59) return false;
+  if (offset !== "Z") {
+    const offsetHour = Number(offset.slice(1, 3));
+    const offsetMinute = Number(offset.slice(4, 6));
+    if (offsetHour > 23 || offsetMinute > 59) return false;
+  }
 
   const utcDate = new Date(Date.UTC(year, month - 1, day));
   return utcDate.getUTCFullYear() === year
@@ -49,7 +54,10 @@ function normalize(input) {
   }
   if ("notes" in input) {
     const notes = normalizeString(input.notes);
-    if (notes !== "") output.notes = notes;
+    if (notes !== "") {
+      output.notes = notes;
+      output.notesRawLength = typeof input.notes === "string" ? input.notes.length : undefined;
+    }
   }
   return output;
 }
@@ -61,7 +69,7 @@ function validate(payload) {
   if (!Number.isInteger(payload.partySize) || payload.partySize < 1 || payload.partySize > 300) details.partySize = "Party size must be between 1 and 300.";
   if (!isDateTime(payload.reservationDate)) details.reservationDate = "Reservation date must be a valid date-time.";
   if ("customerEmail" in payload && (typeof payload.customerEmail !== "string" || !isEmail(payload.customerEmail))) details.customerEmail = "Email must be valid.";
-  if ("notes" in payload && (typeof payload.notes !== "string" || payload.notes.length > 500)) details.notes = "Notes must be 500 characters or fewer.";
+  if ("notes" in payload && (typeof payload.notes !== "string" || payload.notesRawLength > 500)) details.notes = "Notes must be 500 characters or fewer.";
   if (typeof payload.subscribe !== "boolean") details.subscribe = "Subscribe must be a boolean.";
   return details;
 }
@@ -82,6 +90,7 @@ export async function onRequest(context) {
   if (Object.keys(details).length) {
     return json({ error: "Validation error", message: "Please check the reservation fields.", details }, 400);
   }
+  delete payload.notesRawLength;
 
   try {
     const upstream = await fetch(upstreamUrl, {
