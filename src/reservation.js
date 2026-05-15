@@ -1,4 +1,5 @@
 export const restaurantId = "4cfef81c-07a6-4e64-a523-5b1d021e17ff";
+export const restaurantTimeZone = "Europe/Paris";
 
 export const reservationCopy = {
   successTitle: "Réservation bien reçue",
@@ -9,13 +10,48 @@ export const reservationCopy = {
   network: "Connexion impossible. Vérifiez votre réseau puis réessayez."
 };
 
+const timeZoneOffsetFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: restaurantTimeZone,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23"
+});
+
 function timezoneOffset(date) {
-  const offset = -date.getTimezoneOffset();
+  const parts = Object.fromEntries(timeZoneOffsetFormatter.formatToParts(date).map((part) => [part.type, part.value]));
+  const zonedTime = Date.UTC(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour),
+    Number(parts.minute),
+    Number(parts.second)
+  );
+  const offset = Math.round((zonedTime - date.getTime()) / 60000);
   const sign = offset >= 0 ? "+" : "-";
   const absolute = Math.abs(offset);
   const hours = String(Math.floor(absolute / 60)).padStart(2, "0");
   const minutes = String(absolute % 60).padStart(2, "0");
   return `${sign}${hours}:${minutes}`;
+}
+
+function restaurantWallTimeOffset(year, month, day, hour, minute) {
+  const utcWallTime = Date.UTC(year, month - 1, day, hour, minute, 0);
+  const firstOffset = timezoneOffset(new Date(utcWallTime));
+  const firstOffsetMinutes = offsetToMinutes(firstOffset);
+  const restaurantInstant = new Date(utcWallTime - firstOffsetMinutes * 60000);
+  return timezoneOffset(restaurantInstant);
+}
+
+function offsetToMinutes(offset) {
+  const sign = offset[0] === "-" ? -1 : 1;
+  const hours = Number(offset.slice(1, 3));
+  const minutes = Number(offset.slice(4, 6));
+  return sign * (hours * 60 + minutes);
 }
 
 function parsePartySize(value) {
@@ -45,20 +81,28 @@ function pickFieldErrors(details) {
 }
 
 export function buildReservationDateTime(dateValue, timeValue) {
-  const date = new Date(`${dateValue}T${timeValue}:00`);
-  if (Number.isNaN(date.getTime())) return "";
-  const [year, month, day] = String(dateValue).split("-").map((part) => Number.parseInt(part, 10));
-  const [hour, minute] = String(timeValue).split(":").map((part) => Number.parseInt(part, 10));
+  const dateMatch = String(dateValue).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const timeMatch = String(timeValue).match(/^(\d{2}):(\d{2})$/);
+  if (!dateMatch || !timeMatch) return "";
+  const [, yearText, monthText, dayText] = dateMatch;
+  const [, hourText, minuteText] = timeMatch;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  if (hour > 23 || minute > 59) return "";
+  const date = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
   if (
-    date.getFullYear() !== year ||
-    date.getMonth() + 1 !== month ||
-    date.getDate() !== day ||
-    date.getHours() !== hour ||
-    date.getMinutes() !== minute
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() + 1 !== month ||
+    date.getUTCDate() !== day ||
+    date.getUTCHours() !== hour ||
+    date.getUTCMinutes() !== minute
   ) {
     return "";
   }
-  return `${dateValue}T${timeValue}:00${timezoneOffset(date)}`;
+  return `${dateValue}T${timeValue}:00${restaurantWallTimeOffset(year, month, day, hour, minute)}`;
 }
 
 export function buildReservationPayload(values) {

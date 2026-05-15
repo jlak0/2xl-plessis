@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import {
   buildReservationDateTime,
@@ -11,6 +12,32 @@ import {
 
 test("builds ISO 8601 reservation date-time with timezone offset", () => {
   assert.match(buildReservationDateTime("2026-05-15", "19:30"), /^2026-05-15T19:30:00[+-]\d{2}:\d{2}$/);
+});
+
+test("builds restaurant-local reservation date-times independent of process timezone", () => {
+  for (const timezone of ["America/New_York", "Asia/Tokyo"]) {
+    const result = spawnSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `
+          import assert from "node:assert/strict";
+          import { buildReservationDateTime } from "./src/reservation.js";
+
+          assert.equal(buildReservationDateTime("2026-05-15", "19:30"), "2026-05-15T19:30:00+02:00");
+          assert.equal(buildReservationDateTime("2026-01-15", "19:30"), "2026-01-15T19:30:00+01:00");
+        `
+      ],
+      {
+        cwd: process.cwd(),
+        env: { ...process.env, TZ: timezone },
+        encoding: "utf8"
+      }
+    );
+
+    assert.equal(result.status, 0, `${timezone}\n${result.stdout}\n${result.stderr}`);
+  }
 });
 
 test("rejects invalid calendar reservation date-times", () => {
