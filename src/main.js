@@ -121,7 +121,12 @@ function reservationModal() {
         <div class="reservation_top">
           <p class="p2">2XL Restaurant</p>
           <h2 id="reservation-title" class="h2">Réserver une table</h2>
+          <p class="reservation_hint">Demande envoyée à l'équipe 2XL. Confirmation par téléphone.</p>
         </div>
+        <ol class="reservation_steps" aria-label="Étapes de réservation">
+          <li aria-current="step" data-reservation-step-indicator="1"><span>1</span>Date et table</li>
+          <li data-reservation-step-indicator="2"><span>2</span>Coordonnées</li>
+        </ol>
         <form class="reservation_form" data-reservation-form novalidate>
           <div class="reservation_step A" data-reservation-step="1">
             <p class="p1">Quand venir ?</p>
@@ -139,11 +144,11 @@ function reservationModal() {
             <p class="reservation_field_error" id="customerName-error" data-reservation-field-error="customerName" hidden></p>
             <label>Téléphone<input name="customerPhone" autocomplete="tel" minlength="6" maxlength="20" required aria-describedby="customerPhone-error" /></label>
             <p class="reservation_field_error" id="customerPhone-error" data-reservation-field-error="customerPhone" hidden></p>
-            <label>Email <span>optionnel</span><input name="customerEmail" type="email" autocomplete="email" aria-describedby="customerEmail-error" /></label>
+            <label><span class="reservation_label_row">Email <span class="reservation_optional">optionnel</span></span><input name="customerEmail" type="email" autocomplete="email" aria-describedby="customerEmail-error" /></label>
             <p class="reservation_field_error" id="customerEmail-error" data-reservation-field-error="customerEmail" hidden></p>
-            <label>Notes <span>optionnel</span><textarea name="notes" maxlength="500" rows="3" aria-describedby="notes-error"></textarea></label>
+            <label><span class="reservation_label_row">Notes <span class="reservation_optional">optionnel</span></span><textarea name="notes" maxlength="500" rows="2" aria-describedby="notes-error"></textarea></label>
             <p class="reservation_field_error" id="notes-error" data-reservation-field-error="notes" hidden></p>
-            <label class="reservation_check"><input name="subscribe" type="checkbox" aria-describedby="subscribe-error" /> Recevoir les menus et offres du restaurant</label>
+            <label class="reservation_check"><input name="subscribe" type="checkbox" aria-describedby="subscribe-error" /> Recevoir les menus et offres</label>
             <p class="reservation_field_error" id="subscribe-error" data-reservation-field-error="subscribe" hidden></p>
             <p class="reservation_error" data-reservation-error role="alert" aria-live="polite"></p>
             <div class="reservation_actions">
@@ -472,6 +477,7 @@ function bindReservation() {
   if (!modal || !form) return;
 
   const steps = [...modal.querySelectorAll("[data-reservation-step]")];
+  const stepIndicators = [...modal.querySelectorAll("[data-reservation-step-indicator]")];
   const submit = modal.querySelector("[data-reservation-submit]");
   const success = modal.querySelector("[data-reservation-success]");
   let opener = null;
@@ -511,6 +517,14 @@ function bindReservation() {
       const active = item.dataset.reservationStep === String(step);
       item.classList.toggle("A", active);
       item.hidden = !active;
+    });
+    stepIndicators.forEach((item) => {
+      const active = item.dataset.reservationStepIndicator === String(step);
+      if (active) {
+        item.setAttribute("aria-current", "step");
+      } else {
+        item.removeAttribute("aria-current");
+      }
     });
     if (options.clearErrors) {
       setError("");
