@@ -2040,14 +2040,17 @@ video {
 }
 
 .reservation_check {
-  grid-template-columns: 20px 1fr;
-  align-items: start;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+  min-height: 44px;
+  align-items: center;
   font-weight: 400;
+  cursor: pointer;
 }
 
 .reservation_check input {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   padding: 0;
 }
 
@@ -2070,6 +2073,16 @@ video {
 
 .reservation_next .Abtn_h {
   width: 100%;
+}
+
+.reservation_next .Abtn_h,
+.reservation_actions [data-reservation-submit] .Abtn_h {
+  background: #f4f1ea;
+  color: var(--ink);
+}
+
+.reservation_actions [data-reservation-back] .Abtn_h {
+  background: rgb(255 255 255 / 10%);
 }
 
 .reservation_form button:disabled {

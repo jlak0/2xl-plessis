@@ -97,6 +97,8 @@ test("reservation modal has branded booking polish", () => {
   const optional = cssBlock(".reservation_optional");
   const next = cssBlock(".reservation_next");
   const nextInner = cssBlock(".reservation_next .Abtn_h");
+  const primaryButton = cssBlock(".reservation_next .Abtn_h,\n.reservation_actions [data-reservation-submit] .Abtn_h");
+  const reservationCheck = cssBlock(".reservation_check");
 
   assert.match(holder, /background:\s*rgb\(49 72 59 \/ 82%\)/);
   assert.match(holder, /border-radius:\s*34px/);
@@ -108,4 +110,10 @@ test("reservation modal has branded booking polish", () => {
   assert.match(optional, /margin-left:\s*auto/);
   assert.match(next, /width:\s*100%/);
   assert.match(nextInner, /width:\s*100%/);
+  assert.match(primaryButton, /background:\s*#f4f1ea/);
+  assert.match(primaryButton, /color:\s*var\(--ink\)/);
+  assert.match(reservationCheck, /grid-template-columns:\s*24px 1fr/);
+  assert.match(reservationCheck, /gap:\s*8px/);
+  assert.match(reservationCheck, /min-height:\s*44px/);
+  assert.match(reservationCheck, /align-items:\s*center/);
 });
