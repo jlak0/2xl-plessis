@@ -68,9 +68,9 @@ function nav() {
         <a href="/info" data-link>Info</a>
         <a href="/info#tarifs" data-link>Tarifs</a>
         <button type="button" data-reservation-open>Réserver</button>
-        <button type="button" data-contact>Contact</button>
+        <button type="button" data-contact aria-controls="contact-panel" aria-expanded="false">Contact</button>
       </div>
-      <div class="nav_contact" data-contact-panel>
+      <div class="nav_contact" id="contact-panel" data-contact-panel>
         <button type="button" class="nav_contact_close" data-contact-close aria-label="Fermer les coordonnées">×</button>
         ${/* <p>E-mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
         <p>Téléphone <a href="tel:+15550101988">+1 555 010 1988</a></p> */ ""}
@@ -177,7 +177,7 @@ function holidayBanner() {
     </aside>`;
 }
 
-function hero({ eyebrow = "", title, slides, cta = "En savoir plus", href = "#anchorHome-1", product = false }) {
+function hero({ eyebrow = "", title, slides, actions = "", product = false }) {
   return `
     <section class="hero ${product ? "product_hero" : ""}" data-hero>
       <div class="hero_bg">
@@ -186,7 +186,7 @@ function hero({ eyebrow = "", title, slides, cta = "En savoir plus", href = "#an
       <div class="grid hero_info reveal">
         ${eyebrow ? `<p class="p1">${eyebrow}</p>` : ""}
         <h2 class="h1">${title}</h2>
-        <div>${href && !href.startsWith("mailto:") ? button(cta, href) : ""}</div>
+        ${actions && `<div class="hero_actions">${actions}</div>`}
       </div>
       <div class="hero_pag">
         <div class="hold">
@@ -274,7 +274,7 @@ function card(product) {
   return `
     <article class="Acard reveal" data-cat="${(product.categories || []).join(" ")}">
       <div class="Acard_h">
-        <div class="im"><img src="${asset(product.image)}" alt="${product.name}" loading="lazy" /></div>
+        <div class="im"><img src="${asset(product.cardImage || product.image)}" alt="${product.name}" loading="lazy" /></div>
         <div class="info">
           <h4 class="p2">${product.name || product.role}</h4>
           <h3 class="h2">${product.title || product.name}</h3>
@@ -324,17 +324,6 @@ function pricingSection() {
     <section class="pricing grid-vw">
       <div class="top">
         <h2 class="h1" id="tarifs">Tarifs</h2>
-        <p class="p1">Prix buffet, avec les horaires affichés séparément pour garder la lecture rapide.</p>
-        <div class="opening_hours" aria-label="Horaires d'ouverture">
-          <div class="opening_hours_grid">
-            ${openingHours.map((item) => `
-              <article class="opening_hours_item">
-                <p>${item.name}</p>
-                <b>${item.hours}</b>
-                <small>${item.note}</small>
-              </article>`).join("")}
-          </div>
-        </div>
       </div>
       <div class="pricing_compact">
         <div class="pricing_table pricing_table_compact" role="table" aria-label="Tarifs adultes">
@@ -363,6 +352,17 @@ function pricingSection() {
             <span>Moins de 3 ans</span>
             <b>Gratuit</b>
           </article>
+        </div>
+      </div>
+      <div class="opening_hours" aria-label="Horaires d'ouverture">
+        <h3 class="h2">Horaires d’ouverture</h3>
+        <div class="opening_hours_grid">
+          ${openingHours.map((item) => `
+            <article class="opening_hours_item">
+              <p>${item.name}</p>
+              <b>${item.hours}</b>
+              <small>${item.note}</small>
+            </article>`).join("")}
         </div>
       </div>
       <div class="pricing_notes">
@@ -403,7 +403,10 @@ function stackedCases() {
 function homePage() {
   return `
     <main class="home">
-      ${hero({ title: "Buffet en libre-service", slides: homeHero, cta: "Voir les buffets" })}
+      ${hero({ title: "Buffet en libre-service", slides: homeHero, actions: [
+        button("Réserver une table", "#", "hero_book", "data-reservation-open"),
+        button("Voir les buffets", "/work", "", "data-link")
+      ].join("") })}
       ${textBlock(`${restaurantName} est un restaurant moderne et lumineux, organisé autour de buffets frais, d'un réassort régulier et de la liberté de composer chaque assiette à votre façon.`, "anchorHome-1")}
       ${featureSlider(homeSlider)}
       ${homeCardsStack(homeCards)}
@@ -466,7 +469,7 @@ function menuPage() {
           <p>Uniquement les boissons disponibles au restaurant aujourd'hui.</p>
         </div>
       </section>
-      <section class="menu_panel grid-vw-s reveal" data-menu-root>
+      <section class="menu_panel grid-vw-s" data-menu-root>
         <p class="menu_loading">Chargement de la carte...</p>
       </section>
       ${footer()}
@@ -481,7 +484,7 @@ function productPage(product) {
   ];
   return `
     <main class="product">
-      ${hero({ eyebrow: product.name, title: product.title, slides: gallery, cta: `Demander ${product.name}`, href: "mailto:hello@mesabuffet.example", product: true })}
+      ${hero({ eyebrow: product.name, title: product.title, slides: gallery, product: true })}
       ${textBlock("Une station pensée pour le choix, la vitesse et la fraîcheur. Prenez une assiette, suivez le comptoir et composez le repas qui vous convient.")}
       ${featureSlider(productDetails)}
       <section class="product_features grid-vw reveal">
@@ -880,7 +883,15 @@ function bindInteractions() {
     navToggle?.setAttribute("aria-expanded", "false");
   };
 
+  const contact = navElement.querySelector("[data-contact]");
+  const panel = navElement.querySelector("[data-contact-panel]");
+  const closeContact = () => {
+    panel.classList.remove("A");
+    contact.setAttribute("aria-expanded", "false");
+  };
+
   navToggle?.addEventListener("click", () => {
+    closeContact();
     const isOpen = navElement?.classList.toggle("menu-open") || false;
     navToggle.setAttribute("aria-expanded", String(isOpen));
   });
@@ -910,12 +921,15 @@ function bindInteractions() {
     });
   });
 
-  document.querySelector("[data-contact]")?.addEventListener("click", () => {
-    document.querySelector("[data-contact-panel]")?.classList.toggle("A");
+  contact.addEventListener("click", () => {
+    const open = panel.classList.toggle("A");
+    contact.setAttribute("aria-expanded", String(open));
     closeNavMenu();
+    if (open) panel.querySelector("[data-contact-close]").focus();
   });
-  document.querySelector("[data-contact-close]")?.addEventListener("click", () => {
-    document.querySelector("[data-contact-panel]")?.classList.remove("A");
+  panel.querySelector("[data-contact-close]").addEventListener("click", () => {
+    closeContact();
+    (navToggle.getClientRects().length ? navToggle : contact).focus();
   });
   navMenu?.querySelector("[data-reservation-open]")?.addEventListener("click", closeNavMenu);
   bindReservation();
@@ -1021,6 +1035,8 @@ function bindInteractions() {
 function initTextReveal() {
   if (window.__mesaTextRevealCleanup) window.__mesaTextRevealCleanup();
 
+  window.__mesaTextRevealCleanup = null;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const blocks = [...document.querySelectorAll("[data-txrev]")].map((el) => {
     const text = el.textContent.trim().replace(/\s+/g, " ");
     const words = text.split(" ");
@@ -1031,6 +1047,7 @@ function initTextReveal() {
 
     return {
       el,
+      text,
       section: el.closest(".home_txt") || el.parentElement,
       chars: [...el.querySelectorAll(".txchar")]
     };
@@ -1051,7 +1068,7 @@ function initTextReveal() {
     blocks.forEach((block) => {
       const rect = block.section.getBoundingClientRect();
       const stickyTravel = Math.max(1, rect.height - vh);
-      const revealLead = vh * 0.24;
+      const revealLead = vh * 0.46;
       const progress = clamp((revealLead - rect.top) / stickyTravel, 0, 1);
       const count = Math.max(1, block.chars.length);
       block.chars.forEach((char, index) => {
@@ -1073,6 +1090,7 @@ function initTextReveal() {
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", requestUpdate);
   window.__mesaTextRevealCleanup = () => {
+    blocks.forEach(({ el, text }) => { el.textContent = text; });
     if (rafId) cancelAnimationFrame(rafId);
     window.removeEventListener("scroll", requestUpdate);
     window.removeEventListener("resize", requestUpdate);
@@ -1454,6 +1472,18 @@ function initMediaLoadedState() {
   });
 }
 
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || document.querySelector("dialog[open]")) return;
+  const close = document.querySelector(".nav_contact.A [data-contact-close]");
+  const menuToggle = document.querySelector(".menu-open [data-nav-menu-toggle]");
+  if (close) close.click();
+  else if (menuToggle) {
+    menuToggle.click();
+    menuToggle.focus();
+  }
+});
+
+matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", initTextReveal);
 window.addEventListener("popstate", () => {
   if (renderedPath !== window.location.pathname) render();
   if (window.location.hash) requestAnimationFrame(() => scrollToRouteTarget(window.location.hash));

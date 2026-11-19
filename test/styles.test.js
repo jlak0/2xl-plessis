@@ -181,7 +181,7 @@ test("mobile navigation uses a compact click-open menu", () => {
   assert.match(toggle, /pointer-events:\s*auto/);
 
   const contact = cssBlockAfter(".nav_contact", mediaStart);
-  assert.match(contact, /top:\s*244px/);
+  assert.match(contact, /top:\s*66px/);
 });
 
 test("contact panel is an isolated opaque click layer", () => {

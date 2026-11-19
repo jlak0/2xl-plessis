@@ -482,6 +482,22 @@ video {
   text-align: center;
 }
 
+.hero_actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.hero_actions .Abtn_h {
+  background: var(--nav-surface);
+}
+
+.hero_book .Abtn_h {
+  color: var(--ink);
+  background: var(--bg);
+}
+
 .hero_info .h1 {
   max-width: 760px;
 }
@@ -668,6 +684,7 @@ video {
 }
 
 .home_txt {
+  scroll-margin-top: var(--nav-clearance);
   min-height: 190svh;
   position: relative;
   display: block;
@@ -1455,7 +1472,13 @@ video {
   margin-bottom: clamp(42px, 6vw, 78px);
 }
 
+.opening_hours > h3 {
+  margin: 0 0 20px;
+}
+
 .opening_hours {
+  width: min(100%, 920px);
+  margin-inline: auto;
   margin-top: clamp(24px, 4vw, 42px);
   padding-top: clamp(20px, 3vw, 32px);
   border-top: 1px solid rgb(49 72 59 / 24%);
@@ -1551,7 +1574,6 @@ video {
 
 .pricing_table {
   display: grid;
-  border-top: 1px solid rgb(49 72 59 / 18%);
 }
 
 .pricing_row {
@@ -2432,6 +2454,11 @@ video {
     gap: 8px;
   }
 
+  #app:has(.menu_page) > .nav {
+    height: calc(var(--nav-clearance) - var(--announcement-height));
+    background: var(--bg);
+  }
+
   .nav_logo a {
     width: 68px;
     height: 42px;
@@ -2487,7 +2514,7 @@ video {
   }
 
   .nav_contact {
-    top: 244px;
+    top: 66px;
     left: 16px;
     right: 16px;
     min-width: 0;
@@ -2781,6 +2808,16 @@ video {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home_txt,
+  .home_txt > .grid-vw {
+    min-height: auto;
+  }
+
+  .home_txt > .grid-vw {
+    position: static;
+    padding-block: clamp(36px, 8vw, 100px);
+  }
+
   html {
     scroll-behavior: auto;
   }
@@ -2800,5 +2837,12 @@ video {
     display: block;
     animation: none;
     opacity: 1;
+  }
+}
+
+
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .home_txt .h1 {
+    font-size: clamp(23px, 6vw, 32px);
   }
 }

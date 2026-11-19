@@ -1,5 +1,7 @@
 export const diningMenuRestaurantId = "4cfef81c-07a6-4e64-a523-5b1d021e17ff";
 
+const euro = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+
 const printedMenuPriceCorrections = new Map([
   [279, { upstream: "2.80", printed: "1.80" }], // Sirop à l'eau
   [315, { upstream: "6.90", printed: "7.90" }] // Calor
@@ -52,7 +54,10 @@ export function renderDiningMenu(response, { includeUnavailable = false } = {}) 
       ? printedMenuPriceCorrections.get(item.id)
       : undefined;
     // Use the printed price while the menu API still supplies the previous price.
-    return correction && correction.upstream === item.price ? correction.printed : item.price;
+    const price = correction && correction.upstream === item.price ? correction.printed : item.price;
+    return price != null && String(price).trim() && Number.isFinite(Number(price))
+      ? euro.format(Number(price))
+      : "—";
   }
 
   return `
@@ -82,7 +87,7 @@ export function renderDiningMenu(response, { includeUnavailable = false } = {}) 
                     ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}
                     ${Array.isArray(item.allergens) && item.allergens.length ? `<small>${escapeHtml(item.allergens.join(", "))}</small>` : ""}
                   </div>
-                  <b>${escapeHtml(displayPrice(item))}€</b>
+                  <b>${displayPrice(item)}</b>
                 </article>`).join("")}
             </div>
           </section>`).join("")}

@@ -35,21 +35,21 @@ test("contains lunch and dinner pricing for adults and children", () => {
   assert.equal(pricing[0].hours, "11h50 - 14h30 / 15h00");
   assert.deepEqual(pricing.map((service) => service.rows.map(({ period, adult }) => [period, adult])), [
     [
-      ["Lundi-Jeudi", "20.90€"],
-      ["Vendredi", "20.90€"],
-      ["Samedi", "29.90€"],
-      ["Dimanche & J.F.", "29.90€"]
+      ["Lundi-Jeudi", "20,90 €"],
+      ["Vendredi", "20,90 €"],
+      ["Samedi", "29,90 €"],
+      ["Dimanche & J.F.", "29,90 €"]
     ],
     [
-      ["Lundi-Jeudi", "27.90€"],
-      ["Vendredi", "29.90€"],
-      ["Samedi", "29.90€"],
-      ["Dimanche & J.F.", "29.90€"]
+      ["Lundi-Jeudi", "27,90 €"],
+      ["Vendredi", "29,90 €"],
+      ["Samedi", "29,90 €"],
+      ["Dimanche & J.F.", "29,90 €"]
     ]
   ]);
   for (const row of pricing.flatMap((service) => service.rows)) {
-    assert.equal(row.childUnderOneForty, "13.90€");
-    assert.equal(row.childUnderOneTen, "9.90€");
+    assert.equal(row.childUnderOneForty, "13,90 €");
+    assert.equal(row.childUnderOneTen, "9,90 €");
   }
 });
 
@@ -79,6 +79,7 @@ test("pricing section keeps hours separate and renders a compact price table", (
   assert.match(mainSource, /role="columnheader">Midi<\/span>/);
   assert.match(mainSource, /role="columnheader">Soir<\/span>/);
   assert.ok(mainSource.indexOf('class="pricing_table pricing_table_compact"') < mainSource.indexOf('class="pricing_child_prices"'));
+  assert.ok(mainSource.indexOf('class="pricing_child_prices"') < mainSource.indexOf('class="opening_hours"'));
   assert.match(mainSource, /previous\.lunch === row\.lunch && previous\.dinner === row\.dinner/);
   assert.match(mainSource, /previous\.period = `\$\{previous\.period\}, \$\{row\.period\}`/);
   assert.match(mainSource, /Moins de 3 ans/);
@@ -127,8 +128,8 @@ test("contact panel consumes its own click events", () => {
   assert.match(mainSource, /class="nav_contact_close" data-contact-close aria-label="Fermer les coordonnées">×<\/button>/);
   assert.match(mainSource, /document\.querySelector\("\[data-contact-panel\]"\)\?\.addEventListener\("click",\s*\(event\) => \{/);
   assert.match(mainSource, /event\.stopPropagation\(\)/);
-  assert.match(mainSource, /document\.querySelector\("\[data-contact-close\]"\)\?\.addEventListener\("click",\s*\(\) => \{/);
-  assert.match(mainSource, /document\.querySelector\("\[data-contact-panel\]"\)\?\.classList\.remove\("A"\)/);
+  assert.match(mainSource, /panel\.classList\.remove\("A"\)/);
+  assert.match(mainSource, /contact\.setAttribute\("aria-expanded", "false"\)/);
 });
 
 test("reservation modal explains the flow and marks both steps", () => {

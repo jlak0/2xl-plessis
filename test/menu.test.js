@@ -88,7 +88,7 @@ test("renders dining menu categories and escapes upstream content", () => {
 
   assert.match(html, /&lt;Softs&gt;/);
   assert.match(html, /Citron &lt;menthe&gt;/);
-  assert.match(html, /4\.50€/);
+  assert.match(html, /4,50\s€/);
   assert.doesNotMatch(html, /Rupture/);
 });
 
@@ -122,13 +122,13 @@ test("shows printed prices for the two 2XL drinks while the API carries their pr
       ]
     }
   };
-  const prices = (menu) => Array.from(renderDiningMenu(menu).matchAll(/<b>([\d.]+)€<\/b>/g), ([, price]) => price);
+  const prices = (menu) => Array.from(renderDiningMenu(menu).matchAll(/<b>([\d,]+)\s€<\/b>/g), ([, price]) => price);
 
-  assert.deepEqual(prices(response), ["1.80", "7.90", "6.90"]);
+  assert.deepEqual(prices(response), ["1,80", "7,90", "6,90"]);
 
   response.data.categories[0].items[0].price = "2.00";
-  assert.deepEqual(prices(response), ["2.00", "7.90", "6.90"]);
+  assert.deepEqual(prices(response), ["2,00", "7,90", "6,90"]);
 
   response.data.restaurant.id = "another-restaurant";
-  assert.deepEqual(prices(response), ["2.00", "6.90", "6.90"]);
+  assert.deepEqual(prices(response), ["2,00", "6,90", "6,90"]);
 });

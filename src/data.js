@@ -34,6 +34,7 @@ export const products = [
     title: "La fraîcheur sous la canopée d'érables rouges",
     description: "Dégustez nos salades croquantes et compositions saines confortablement installés sous le magnifique plafond d'érables rouges suspendus.",
     image: img("buffet-salad"),
+    cardImage: "images/cards/salad.webp",
     categories: ["Végétarien", "Frais", "Déjeuner"],
     stats: { Garnitures: "18", Sauces: "6", Régimes: "Options véganes", Comptoir: "Froid" }
   },
@@ -43,6 +44,7 @@ export const products = [
     title: "Le grand buffet chaud sur marbre noir",
     description: "Un immense et splendide linéaire en marbre noir équipé de chauffe-plats encastrés, réapprovisionné continuellement de spécialités fumantes.",
     image: img("buffet-hotline"),
+    cardImage: "images/cards/hotline.webp",
     categories: ["Plats chauds", "Déjeuner", "Dîner"],
     stats: { "Plats chauds": "12 plats", Accompagnements: "8", Réassort: "Par le chef" }
   },
@@ -52,6 +54,7 @@ export const products = [
     title: "Un voyage culinaire autour de nos îlots prestigieux",
     description: "Explorez nos riches spécialités méditerranéennes et asiatiques présentées avec raffinement sur nos superbes îlots centraux en marbre.",
     image: img("buffet-global"),
+    cardImage: "images/cards/global.webp",
     categories: ["Monde", "Dîner", "Famille"],
     stats: { Spécialités: "5 cuisines", Menu: "Rotation quotidienne", Comptoir: "Bar à sauces", Préparation: "Cuisine ouverte" }
   },
@@ -61,6 +64,7 @@ export const products = [
     title: "Découpes et grillades fines préparées sous vos yeux",
     description: "Des viandes sélectionnées et grillades saisies à la minute par notre chef devant le grand comptoir de marbre noir.",
     image: img("buffet-carving"),
+    cardImage: "images/cards/carving.webp",
     categories: ["Plats chauds", "Dîner", "Station chef"],
     stats: { Préparation: "En direct", Offre: "3 protéines", Accompagnement: "Légumes grillés" }
   },
@@ -70,6 +74,7 @@ export const products = [
     title: "Douceurs sucrées et grande finale",
     description: "Tartelettes fines, mousses légères et gâteaux gourmands dressés avec le plus grand soin pour clore votre repas sur une note magique.",
     image: img("buffet-dessert"),
+    cardImage: "images/cards/dessert.webp",
     categories: ["Dessert", "Famille"],
     stats: { Sélection: "16 douceurs", Pâtisseries: "Tartelettes fruitées", Comptoir: "Bar chocolat", Réassort: "Fréquent" }
   },
@@ -79,6 +84,7 @@ export const products = [
     title: "Le somptueux Lounge Bar d'exception",
     description: "Un espace bar étincelant en laiton doré rétroéclairé, offrant une vaste sélection de cafés, jus frais et boissons de prestige.",
     image: img("buffet-beverage"),
+    cardImage: "images/cards/beverage.webp",
     categories: ["Boissons", "Café"],
     stats: { Boissons: "Jus frais et eaux infusées", Café: "Espresso", Service: "Verres prêts" }
   },
@@ -229,30 +235,30 @@ export const pricing = [
       {
         period: "Lundi-Jeudi",
         note: "11h50 - 14h30 / 18h50 - 22h30",
-        adult: "20.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "20,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       },
       {
         period: "Vendredi",
         note: "11h50 - 14h30 / 18h50 - 23h00",
-        adult: "20.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "20,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       },
       {
         period: "Samedi",
         note: "11h50 - 15h00 / 18h50 - 23h00",
-        adult: "29.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "29,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       },
       {
         period: "Dimanche & J.F.",
         note: "11h50 - 15h00 / 18h50 - 22h30",
-        adult: "29.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "29,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       }
     ]
   },
@@ -263,30 +269,30 @@ export const pricing = [
       {
         period: "Lundi-Jeudi",
         note: "11h50 - 14h30 / 18h50 - 22h30",
-        adult: "27.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "27,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       },
       {
         period: "Vendredi",
         note: "11h50 - 14h30 / 18h50 - 23h00",
-        adult: "29.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "29,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       },
       {
         period: "Samedi",
         note: "11h50 - 15h00 / 18h50 - 23h00",
-        adult: "29.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "29,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       },
       {
         period: "Dimanche & J.F.",
         note: "11h50 - 15h00 / 18h50 - 22h30",
-        adult: "29.90€",
-        childUnderOneForty: "13.90€",
-        childUnderOneTen: "9.90€"
+        adult: "29,90 €",
+        childUnderOneForty: "13,90 €",
+        childUnderOneTen: "9,90 €"
       }
     ]
   }
