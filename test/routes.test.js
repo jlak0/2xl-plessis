@@ -174,14 +174,15 @@ test("browse card sections show all items without filters or expand controls", (
 
 test("internal navigation scrolls to hash targets or route start", () => {
   assert.match(mainSource, /function scrollToRouteTarget\(hash = ""\)/);
-  assert.match(mainSource, /document\.querySelector\(hash\)/);
+  assert.match(mainSource, /document\.getElementById\(hash\.slice\(1\)\)/);
   assert.match(mainSource, /target\.scrollIntoView\(\{ block: "start" \}\)/);
   assert.match(mainSource, /window\.scrollTo\(0,\s*0\)/);
   assert.match(mainSource, /const currentPath = `\$\{window\.location\.pathname\}\$\{window\.location\.hash\}`/);
   assert.match(mainSource, /const nextPath = `\$\{url\.pathname\}\$\{url\.hash\}`/);
   assert.match(mainSource, /const isSamePath = url\.pathname === window\.location\.pathname/);
   assert.match(mainSource, /if \(nextPath !== currentPath\) \{\s*history\.pushState\(\{\},\s*"",\s*nextPath\);\s*\}/);
-  assert.match(mainSource, /if \(!isSamePath\) \{\s*render\(\);\s*\} else \{\s*scrollToRouteTarget\(url\.hash\);\s*\}/);
+  assert.match(mainSource, /if \(!isSamePath\) \{\s*render\(\);\s*\}\s*scrollToRouteTarget\(url\.hash\)/);
+  assert.match(mainSource, /<h2 class="h1" id="tarifs">Tarifs<\/h2>/);
   assert.doesNotMatch(mainSource, /document\.body\.classList\.remove\("loaded"\)/);
   assert.doesNotMatch(mainSource, /setTimeout\(\(\) => \{\s*render\(\)/);
   assert.match(mainSource, /scrollToRouteTarget\(url\.hash\)/);
@@ -223,6 +224,7 @@ test("reservation time options follow opening hours with ten-minute intervals", 
       { name: "Dimanche et jours fériés", times: [...weekendLunch, ...regularDinner] }
     ]
   );
-  assert.match(mainSource, /<select name="reservationTime" required>\$\{reservationTimeOptions\}<\/select>/);
+  assert.match(mainSource, /<select name="reservationTime" required disabled\b/);
+  assert.match(mainSource, /reservationTimesForDate\(date\.value, now\)/);
   assert.doesNotMatch(mainSource, /name="reservationTime" type="time"/);
 });

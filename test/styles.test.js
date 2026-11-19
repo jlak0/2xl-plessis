@@ -52,7 +52,7 @@ test("menu page uses an indexed dining-menu layout", () => {
 
   assert.match(layout, /grid-template-columns:\s*minmax\(180px,\s*\.32fr\) minmax\(0,\s*1fr\)/);
   assert.match(index, /position:\s*sticky/);
-  assert.match(index, /top:\s*110px/);
+  assert.match(index, /top:\s*var\(--nav-clearance\)/);
   assert.match(sections, /display:\s*grid/);
   assert.match(item, /grid-template-columns:\s*minmax\(0,\s*1fr\) auto/);
   assert.match(itemWithImage, /grid-template-columns:\s*72px minmax\(0,\s*1fr\) auto/);
@@ -76,6 +76,7 @@ test("mobile menu page category navigation supports touch scrolling", () => {
   assert.match(index, /padding:\s*10px 16px/);
   assert.match(scrollbar, /display:\s*none/);
   assert.match(link, /flex:\s*0 0 142px/);
+  assert.match(cssBlockAfter(".menu_category", mediaStart), /scroll-margin-top:\s*calc\(var\(--nav-clearance\) \+ var\(--menu-index-height, 0px\)/);
 });
 
 test("pricing table uses a compact adult grid with child price chips", () => {
@@ -120,7 +121,7 @@ test("reservation modal defines stable form and state styles", () => {
   assert.match(fields, /background:\s*rgb\(255 255 255 \/ 70%\)/);
   assert.match(fieldError, /min-height:\s*1\.25em/);
   assert.match(fieldError, /margin:\s*0/);
-  assert.match(fieldError, /color:\s*#9b2f21/);
+  assert.match(fieldError, /color:\s*#ffd2c8/);
   assert.match(fieldError, /font-size:\s*13px/);
   assert.match(hiddenFieldError, /display:\s*none/);
   assert.match(buttonDisabled, /cursor:\s*not-allowed/);

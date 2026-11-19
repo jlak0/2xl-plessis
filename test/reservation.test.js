@@ -7,8 +7,33 @@ import {
   mapReservationResponse,
   networkReservationState,
   reservationCopy,
+  reservationTimesForDate,
+  restaurantDateAndTime,
   restaurantId
 } from "../src/reservation.js";
+
+test("uses the selected day's service hours, including French public holidays", () => {
+  const now = new Date("2026-11-19T12:00:00Z");
+  const serviceEnds = (date) => {
+    const times = reservationTimesForDate(date, now);
+    return [times.filter((time) => time < "18:50").at(-1), times.at(-1)];
+  };
+
+  assert.deepEqual(serviceEnds("2027-01-04"), ["14:00", "22:00"]); // Monday
+  assert.deepEqual(serviceEnds("2027-01-08"), ["14:00", "22:30"]); // Friday
+  assert.deepEqual(serviceEnds("2027-01-09"), ["14:30", "22:30"]); // Saturday
+  for (const date of ["2027-01-10", "2027-01-01", "2027-03-29", "2027-05-06", "2027-05-17"]) {
+    assert.deepEqual(serviceEnds(date), ["14:30", "22:00"], date);
+  }
+});
+
+test("filters elapsed slots and dates using Paris local time", () => {
+  const now = new Date("2026-06-12T20:00:00Z");
+  assert.deepEqual(reservationTimesForDate("2026-06-12", now), ["22:10", "22:20", "22:30"]);
+  assert.deepEqual(reservationTimesForDate("2026-06-11", now), []);
+  assert.deepEqual(reservationTimesForDate("2027-02-30", now), []);
+  assert.deepEqual(restaurantDateAndTime(new Date("2026-06-12T22:05:00Z")), { date: "2026-06-13", time: "00:05" });
+});
 
 test("builds ISO 8601 reservation date-time with timezone offset", () => {
   assert.match(buildReservationDateTime("2026-05-15", "19:30"), /^2026-05-15T19:30:00[+-]\d{2}:\d{2}$/);

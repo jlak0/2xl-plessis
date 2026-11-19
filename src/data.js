@@ -21,12 +21,12 @@ const img = (name) => imageMapping[name] || "images/1.jpg";
 export const products = [
   {
     slug: "breakfast",
-    name: "Bar du Matin",
-    title: "Le petit-déjeuner dans un espace Lounge d'exception",
-    description: "Démarrez votre journée avec élégance autour de viennoiseries fraîches et de boissons chaudes servies dans notre majestueux Lounge Bar.",
+    name: "Lounge Bar",
+    title: "Un espace lounge pour accompagner votre repas",
+    description: "Profitez du Lounge Bar et de sa sélection de boissons chaudes.",
     image: img("buffet-breakfast"),
-    categories: ["Petit-déjeuner", "Frais", "Toute la journée"],
-    stats: ["07:00 - 11:00", "24 plats chauds", "Fruits frais", "Café inclus"]
+    categories: ["Café", "Boissons chaudes"],
+    stats: { Espace: "Lounge Bar", Boissons: "Cafés et boissons chaudes" }
   },
   {
     slug: "salad",
@@ -35,7 +35,7 @@ export const products = [
     description: "Dégustez nos salades croquantes et compositions saines confortablement installés sous le magnifique plafond d'érables rouges suspendus.",
     image: img("buffet-salad"),
     categories: ["Végétarien", "Frais", "Déjeuner"],
-    stats: ["18 garnitures", "6 sauces", "Options véganes", "Comptoir froid"]
+    stats: { Garnitures: "18", Sauces: "6", Régimes: "Options véganes", Comptoir: "Froid" }
   },
   {
     slug: "hot-line",
@@ -44,7 +44,7 @@ export const products = [
     description: "Un immense et splendide linéaire en marbre noir équipé de chauffe-plats encastrés, réapprovisionné continuellement de spécialités fumantes.",
     image: img("buffet-hotline"),
     categories: ["Plats chauds", "Déjeuner", "Dîner"],
-    stats: ["12 plats", "8 accompagnements", "Réassort chef", "Service chaud"]
+    stats: { "Plats chauds": "12 plats", Accompagnements: "8", Réassort: "Par le chef" }
   },
   {
     slug: "world-table",
@@ -53,7 +53,7 @@ export const products = [
     description: "Explorez nos riches spécialités méditerranéennes et asiatiques présentées avec raffinement sur nos superbes îlots centraux en marbre.",
     image: img("buffet-global"),
     categories: ["Monde", "Dîner", "Famille"],
-    stats: ["5 cuisines", "Rotation quotidienne", "Bar à sauces", "Cuisine ouverte"]
+    stats: { Spécialités: "5 cuisines", Menu: "Rotation quotidienne", Comptoir: "Bar à sauces", Préparation: "Cuisine ouverte" }
   },
   {
     slug: "grill",
@@ -62,7 +62,7 @@ export const products = [
     description: "Des viandes sélectionnées et grillades saisies à la minute par notre chef devant le grand comptoir de marbre noir.",
     image: img("buffet-carving"),
     categories: ["Plats chauds", "Dîner", "Station chef"],
-    stats: ["Station live", "3 protéines", "Légumes grillés", "Heures de pointe"]
+    stats: { Préparation: "En direct", Offre: "3 protéines", Accompagnement: "Légumes grillés" }
   },
   {
     slug: "dessert",
@@ -71,7 +71,7 @@ export const products = [
     description: "Tartelettes fines, mousses légères et gâteaux gourmands dressés avec le plus grand soin pour clore votre repas sur une note magique.",
     image: img("buffet-dessert"),
     categories: ["Dessert", "Famille"],
-    stats: ["16 douceurs", "Tartelettes fruitées", "Bar chocolat", "Réassort fréquent"]
+    stats: { Sélection: "16 douceurs", Pâtisseries: "Tartelettes fruitées", Comptoir: "Bar chocolat", Réassort: "Fréquent" }
   },
   {
     slug: "beverage",
@@ -79,8 +79,8 @@ export const products = [
     title: "Le somptueux Lounge Bar d'exception",
     description: "Un espace bar étincelant en laiton doré rétroéclairé, offrant une vaste sélection de cafés, jus frais et boissons de prestige.",
     image: img("buffet-beverage"),
-    categories: ["Boissons", "Petit-déjeuner", "Toute la journée"],
-    stats: ["Jus frais", "Espresso", "Eaux infusées", "Verres prêts"]
+    categories: ["Boissons", "Café"],
+    stats: { Boissons: "Jus frais et eaux infusées", Café: "Espresso", Service: "Verres prêts" }
   },
   {
     slug: "family-dining",
@@ -89,7 +89,7 @@ export const products = [
     description: "Installez-vous en groupe ou en famille dans le confort intime de nos box privatifs équipés de banquettes en cuir et de superbes claustras.",
     image: img("buffet-family"),
     categories: ["Famille", "Déjeuner", "Dîner"],
-    stats: ["160 places", "Allées larges", "Chaises hautes", "Tables de groupe"]
+    stats: { Capacité: "160 places", Circulation: "Allées larges", Familles: "Chaises hautes", Groupes: "Tables de groupe" }
   }
 ];
 

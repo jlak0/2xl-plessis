@@ -1,6 +1,5 @@
 import {
   asset,
-  buildReservationTimeGroups,
   caseStudies,
   clients,
   getRoute,
@@ -20,7 +19,9 @@ import {
   buildReservationPayload,
   mapReservationResponse,
   networkReservationState,
-  reservationCopy
+  reservationCopy,
+  restaurantDateAndTime,
+  reservationTimesForDate
 } from "./reservation.js";
 import {
   buildDiningMenuUrl,
@@ -41,13 +42,6 @@ const partySizeOptions = Array.from({ length: 50 }, (_, index) => {
   const label = value === 1 ? "1 personne" : `${value} personnes`;
   return `<option value="${value}"${value === 2 ? " selected" : ""}>${label}</option>`;
 }).join("");
-
-const reservationTimeOptions = buildReservationTimeGroups()
-  .map((group) => `
-    <optgroup label="${group.name}">
-      ${group.times.map((time) => `<option value="${time}">${time}</option>`).join("")}
-    </optgroup>`)
-  .join("");
 
 function media(item, className = "") {
   const src = asset(item.src || item.image);
@@ -94,12 +88,11 @@ function footer() {
           <b>${restaurantName}</b>
         </div>
         <div class="grid foot_bp">
-          <form class="newsletter">
-            <label>Recevoir les menus de la semaine</label>
-            <input type="email" placeholder="Votre adresse e-mail" required />
-            <button type="submit" aria-label="S'inscrire">${logo}</button>
-            <p class="newsletter_ok">Inscription confirmée</p>
-          </form>
+          <div class="foot_offers">
+            <b>Menus et offres</b>
+            <p>Vous pouvez vous inscrire lors de votre réservation.</p>
+            <button type="button" data-reservation-open>Réserver une table</button>
+          </div>
           <div>
             <a href="${restaurantAddressLink}" target="_blank" rel="noreferrer">${restaurantAddress}</a>
             ${/* <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a>
@@ -125,8 +118,8 @@ function footer() {
 
 function reservationModal() {
   return `
-    <div class="modal reservation_modal" data-reservation-modal aria-hidden="true">
-      <div class="modal_h reservation_h" role="dialog" aria-modal="true" aria-labelledby="reservation-title">
+    <dialog class="modal reservation_modal" data-reservation-modal aria-labelledby="reservation-title">
+      <div class="modal_h reservation_h">
         <button class="modal_x" type="button" aria-label="Fermer" data-reservation-close>×</button>
         <div class="reservation_top">
           <p class="p2">2XL Restaurant</p>
@@ -140,9 +133,10 @@ function reservationModal() {
         <form class="reservation_form" data-reservation-form novalidate>
           <div class="reservation_step A" data-reservation-step="1">
             <p class="p1">Quand venir ?</p>
-            <label>Date<input name="reservationDate" type="date" required aria-describedby="reservationDate-error" /></label>
+            <label>Date<input name="reservationDate" type="date" required autofocus aria-describedby="reservationDate-error" /></label>
             <p class="reservation_field_error" id="reservationDate-error" data-reservation-field-error="reservationDate" hidden></p>
-            <label>Heure<select name="reservationTime" required>${reservationTimeOptions}</select></label>
+            <label>Heure<select name="reservationTime" required disabled aria-describedby="reservationTime-error"><option value="">Choisissez d’abord une date</option></select></label>
+            <p class="reservation_field_error" id="reservationTime-error" data-reservation-field-error="reservationTime" hidden></p>
             <label>Personnes<select name="partySize" required aria-describedby="partySize-error">${partySizeOptions}</select></label>
             <p class="reservation_field_error" id="partySize-error" data-reservation-field-error="partySize" hidden></p>
             <p class="reservation_error" data-reservation-error role="alert" aria-live="polite"></p>
@@ -152,7 +146,7 @@ function reservationModal() {
             <p class="p1">Vos coordonnées</p>
             <label>Nom<input name="customerName" autocomplete="name" minlength="2" required aria-describedby="customerName-error" /></label>
             <p class="reservation_field_error" id="customerName-error" data-reservation-field-error="customerName" hidden></p>
-            <label>Téléphone<input name="customerPhone" autocomplete="tel" minlength="6" maxlength="20" required aria-describedby="customerPhone-error" /></label>
+            <label>Téléphone<input name="customerPhone" type="tel" autocomplete="tel" minlength="6" maxlength="20" required aria-describedby="customerPhone-error" /></label>
             <p class="reservation_field_error" id="customerPhone-error" data-reservation-field-error="customerPhone" hidden></p>
             <label><span class="reservation_label_row">Email <span class="reservation_optional">optionnel</span></span><input name="customerEmail" type="email" autocomplete="email" aria-describedby="customerEmail-error" /></label>
             <p class="reservation_field_error" id="customerEmail-error" data-reservation-field-error="customerEmail" hidden></p>
@@ -173,7 +167,7 @@ function reservationModal() {
           <button type="button" class="Abtn" data-reservation-close><span class="Abtn_h"><span class="Abtn_t">Fermer</span></span></button>
         </div>
       </div>
-    </div>`;
+    </dialog>`;
 }
 
 function holidayBanner() {
@@ -327,9 +321,9 @@ function pricingSection() {
   const childReference = lunch?.rows[0] || dinner?.rows[0];
 
   return `
-    <section class="pricing grid-vw reveal" id="tarifs">
+    <section class="pricing grid-vw">
       <div class="top">
-        <h2 class="h1">Tarifs</h2>
+        <h2 class="h1" id="tarifs">Tarifs</h2>
         <p class="p1">Prix buffet, avec les horaires affichés séparément pour garder la lecture rapide.</p>
         <div class="opening_hours" aria-label="Horaires d'ouverture">
           <div class="opening_hours_grid">
@@ -421,7 +415,7 @@ function homePage() {
 function workPage() {
   return `
     <main class="work">
-      ${cardsSection("Explorer nos buffets", "Une carte pratique du buffet : petit-déjeuner, bar frais, plats chauds, comptoirs du monde, grill en direct, boissons et desserts.", products)}
+      ${cardsSection("Explorer nos buffets", "Découvrez le bar frais, les plats chauds, les comptoirs du monde, le grill en direct, les boissons et les desserts.", products)}
       ${featureSlider(workSteps, "work_slider")}
       <section class="method grid-vw reveal">
         <h2 class="h1">Le rythme du service</h2>
@@ -435,13 +429,14 @@ function workPage() {
 }
 
 function infoPage() {
-  const words = ["Petit-déjeuner", "Fraîcheur", "Chaleur", "Choix", "Café", "Salades", "Grill", "Dessert", "Famille", "Vitesse", "Confort", "Variété"];
+  const words = ["Le buffet", "La fraîcheur", "Le choix", "Le grill", "Le dessert", "La variété"];
   return `
     <main class="about">
       <section class="about_intro">
         <div class="grid-vw about_intro_grid">
-          <div class="word_roll">${words.map((word) => `<span class="h1">${word}</span>`).join("")}</div>
-          <div><span class="h1">est à table</span></div>
+          <h2 class="visually_hidden">Le buffet est à table</h2>
+          <div class="word_roll" aria-hidden="true">${words.map((word) => `<span class="h1">${word}</span>`).join("")}</div>
+          <div aria-hidden="true"><span class="h1">est à table</span></div>
         </div>
       </section>
       ${textBlock(`${restaurantName} est pensé pour une abondance quotidienne : une salle nette, des comptoirs généreux, une circulation claire et des plats fraîchement préparés du début à la fin du service.`)}
@@ -451,7 +446,7 @@ function infoPage() {
       ${featureSlider(clients.map((item) => ({ image: item.image, title: item.title, text: item.text })), "cards_slider")}
       ${cardsSection("Actualités", "", [
     { image: "images/4.jpg", name: "Menu", title: "Week-end Table du Monde", description: "Des plats du monde en rotation rejoignent le buffet du soir.", href: "/product/world-table" },
-    { image: "images/1.jpg", name: "Matin", title: "Petit-déjeuner dès l'ouverture", description: "Café frais, viennoiseries et fruits dès 7 h.", href: "/product/breakfast" },
+    { image: "images/1.jpg", name: "Lounge Bar", title: "Une pause au Lounge Bar", description: "Découvrez notre sélection de cafés et de boissons chaudes.", href: "/product/breakfast" },
     { image: "images/1.jpg", name: "Dessert", title: "Comptoir sucré", description: "Des petits desserts remis en place tout au long du service.", href: "/product/dessert" }
   ])}
       ${footer()}
@@ -495,8 +490,8 @@ function productPage(product) {
           <p class="p1">Capacité, circulation et notes de service pour ce comptoir.</p>
         </div>
         <div class="render">
-          <img src="${asset(product.slug === "hot-line" ? "images/2.jpg" : product.image)}" alt="${product.name} station detail" />
-          <button type="button" class="plus" data-feature-modal>+</button>
+          <img src="${asset(product.image)}" alt="${product.name}" />
+          <button type="button" class="plus" data-feature-modal aria-label="Voir les détails du comptoir">+</button>
         </div>
         <div class="btm">
           ${button("Détails", "#", "features-open")}
@@ -506,19 +501,22 @@ function productPage(product) {
       ${featureSlider(homeCards.map((item) => ({ image: item.image, title: item.title, text: item.description })), "cards_slider")}
       ${/* <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Préparer votre prochain repas</p>${button("Contacter le restaurant", "mailto:hello@mesabuffet.example")}</div></section> */ ""}
       ${cardsSection("Explorer d'autres buffets", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
-      <div class="modal feature_modal">
+      <dialog class="modal feature_modal" aria-labelledby="feature-title">
         <div class="modal_h">
-          <h2>Détails ${product.name}</h2>
-          <img src="${asset(product.slug === "hot-line" ? "images/2.jpg" : product.image)}" alt="${product.name}" />
-          <ul>${["Horaires", "Comptoir", "Offre principale", "Note client"].map((label, index) => `<li><span>${label}</span><b>${product.stats[index]}</b></li>`).join("")}</ul>
-          <button class="modal_x" type="button" aria-label="Fermer">×</button>
+          <h2 id="feature-title">Détails · ${product.name}</h2>
+          <img src="${asset(product.image)}" alt="${product.name}" />
+          <ul>${Object.entries(product.stats).map(([label, value]) => `<li><span>${label}</span><b>${value}</b></li>`).join("")}</ul>
+          <button class="modal_x" type="button" aria-label="Fermer" autofocus>×</button>
         </div>
-      </div>
+      </dialog>
       ${footer()}
     </main>`;
 }
 
+let renderedPath;
+
 function render() {
+  renderedPath = window.location.pathname;
   const route = getRoute(window.location.pathname);
   const body = route.page === "home" ? homePage() : route.page === "work" ? workPage() : route.page === "info" ? infoPage() : route.page === "menu" ? menuPage() : productPage(route.product);
   app.innerHTML = `${holidayBanner()}${nav()}${body}${reservationModal()}`;
@@ -530,13 +528,30 @@ function scrollToRouteTarget(hash = "") {
   const root = document.documentElement;
   const previousScrollBehavior = root.style.scrollBehavior;
   root.style.scrollBehavior = "auto";
-  const target = hash ? document.querySelector(hash) : null;
+  const target = document.getElementById(hash.slice(1));
   if (target) {
     target.scrollIntoView({ block: "start" });
   } else {
     window.scrollTo(0, 0);
   }
   root.style.scrollBehavior = previousScrollBehavior;
+}
+
+function keepFocusInDialog(dialog) {
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") return;
+    const fields = [...dialog.querySelectorAll("a[href], button, input, select, textarea")]
+      .filter((field) => !field.disabled && !field.closest("[inert]") && field.getClientRects().length > 0);
+    const first = fields[0];
+    const last = fields.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  });
 }
 
 function bindReservation() {
@@ -548,6 +563,9 @@ function bindReservation() {
   const stepIndicators = [...modal.querySelectorAll("[data-reservation-step-indicator]")];
   const submit = modal.querySelector("[data-reservation-submit]");
   const success = modal.querySelector("[data-reservation-success]");
+  const date = form.elements.reservationDate;
+  const time = form.elements.reservationTime;
+  const next = modal.querySelector("[data-reservation-next]");
   let opener = null;
   const currentStep = () => steps.find((item) => item.classList.contains("A") && !item.hidden) || steps[0];
   const focusCurrentStep = () => currentStep()?.querySelector("input, textarea, button")?.focus();
@@ -600,32 +618,61 @@ function bindReservation() {
     }
     if (options.focus) focusCurrentStep();
   };
-  const open = (event) => {
-    opener = event?.currentTarget instanceof HTMLElement ? event.currentTarget : document.activeElement;
-    modal.classList.add("A");
-    modal.setAttribute("aria-hidden", "false");
-    success.hidden = true;
-    form.hidden = false;
-    showStep(1, { clearErrors: true });
-    setError("");
-    requestAnimationFrame(focusCurrentStep);
+  const syncTimes = () => {
+    const now = new Date();
+    date.min = restaurantDateAndTime(now).date;
+    const times = reservationTimesForDate(date.value, now);
+    const selected = time.value;
+    const placeholder = date.validity.valid
+      ? (times.length ? reservationCopy.chooseTime : "Aucun créneau")
+      : "Choisissez d’abord une date";
+    time.replaceChildren(new Option(placeholder, ""), ...times.map((slot) => new Option(slot, slot)));
+    time.disabled = times.length === 0;
+    if (times.includes(selected)) time.value = selected;
   };
-  const close = () => {
-    modal.classList.remove("A");
-    modal.setAttribute("aria-hidden", "true");
-    if (opener instanceof HTMLElement) opener.focus();
-    opener = null;
+  const validateSlot = () => {
+    syncTimes();
+    if (!date.reportValidity()) return false;
+    if (time.disabled) {
+      setError(reservationCopy.noTimes);
+      date.focus();
+      return false;
+    }
+    return time.reportValidity();
+  };
+  const open = (event) => {
+    if (modal.open) return;
+    opener = event.currentTarget;
+    if (!submit.disabled) {
+      if (!success.hidden) form.reset();
+      success.hidden = true;
+      form.hidden = false;
+      showStep(1, { clearErrors: true });
+      syncTimes();
+    }
+    modal.showModal();
+    focusCurrentStep();
   };
 
+  keepFocusInDialog(modal);
   document.querySelectorAll("[data-reservation-open]").forEach((button) => button.addEventListener("click", open));
-  modal.querySelectorAll("[data-reservation-close]").forEach((button) => button.addEventListener("click", close));
-  modal.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && modal.classList.contains("A")) close();
+  modal.querySelectorAll("[data-reservation-close]").forEach((button) => button.addEventListener("click", () => modal.close()));
+  modal.addEventListener("close", () => {
+    if (modal.open || !opener) return;
+    const toggle = document.querySelector("[data-nav-menu-toggle]");
+    const focusTarget = opener.closest(".nav_menu") && toggle?.getClientRects().length ? toggle : opener;
+    focusTarget.focus();
+    opener = null;
   });
-  modal.querySelector("[data-reservation-next]")?.addEventListener("click", () => {
+  date.addEventListener("input", () => {
     clearFieldErrors();
-    const required = ["reservationDate", "reservationTime", "partySize"].map((name) => form.elements[name]);
-    if (!required.every((field) => field.reportValidity())) return;
+    setError("");
+    syncTimes();
+  });
+  next.addEventListener("click", () => {
+    clearFieldErrors();
+    setError("");
+    if (!validateSlot() || !form.elements.partySize.reportValidity()) return;
     showStep(2, { clearErrors: true, focus: true });
   });
   modal.querySelector("[data-reservation-back]")?.addEventListener("click", () => {
@@ -634,16 +681,28 @@ function bindReservation() {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (submit.disabled) return;
+    if (currentStep() === steps[0]) {
+      next.click();
+      return;
+    }
     clearFieldErrors();
+    syncTimes();
+    if (!date.validity.valid || !time.value) {
+      showStep(1, { focus: true });
+      validateSlot();
+      return;
+    }
     if (!form.reportValidity()) return;
+    const values = Object.fromEntries(new FormData(form).entries());
+    values.subscribe = form.elements.subscribe.checked;
+    form.inert = true;
     submit.disabled = true;
     form.setAttribute("aria-busy", "true");
     submit.querySelector(".Abtn_t").textContent = "Envoi...";
     setError("");
 
     try {
-      const values = Object.fromEntries(new FormData(form).entries());
-      values.subscribe = form.elements.subscribe.checked;
       const response = await fetch("/api/external/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -651,6 +710,7 @@ function bindReservation() {
       });
       const body = await response.json().catch(() => ({}));
       const state = mapReservationResponse(body);
+      form.inert = false;
       if (state.step) showStep(state.step, { focus: true });
       if (state.kind === "success") {
         form.hidden = true;
@@ -663,6 +723,7 @@ function bindReservation() {
     } catch {
       setError(networkReservationState().message);
     } finally {
+      form.inert = false;
       submit.disabled = false;
       form.removeAttribute("aria-busy");
       submit.querySelector(".Abtn_t").textContent = "Envoyer la demande";
@@ -671,11 +732,6 @@ function bindReservation() {
 }
 
 function initMenuScrollSpy() {
-  if (window.__mesaMenuSpyCleanup) {
-    window.__mesaMenuSpyCleanup();
-    window.__mesaMenuSpyCleanup = null;
-  }
-
   const index = document.querySelector(".menu_index");
   if (!index) return;
 
@@ -691,7 +747,9 @@ function initMenuScrollSpy() {
 
   let activeId = "";
   let rafId = 0;
-  let lockUntil = 0;
+  let scrollTimer = 0;
+  let offset = 0;
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   const setActive = (id) => {
     if (id === activeId) return;
@@ -701,21 +759,19 @@ function initMenuScrollSpy() {
       item.link.classList.toggle("active", isActive);
       if (isActive && index.scrollWidth > index.clientWidth) {
         const scrollLeft = item.link.offsetLeft - (index.clientWidth - item.link.offsetWidth) / 2;
-        index.scrollTo({ left: scrollLeft, behavior: "smooth" });
+        index.scrollTo({ left: scrollLeft, behavior: reducedMotion.matches ? "instant" : "smooth" });
       }
     });
   };
 
-  const OFFSET = 140;
-
   const update = () => {
     rafId = 0;
-    if (performance.now() < lockUntil) return;
+    if (scrollTimer) return;
 
     let current = sectionMap[0];
     for (let i = sectionMap.length - 1; i >= 0; i--) {
       const rect = sectionMap[i].el.getBoundingClientRect();
-      if (rect.top <= OFFSET) {
+      if (rect.top <= offset + 2) {
         current = sectionMap[i];
         break;
       }
@@ -726,15 +782,28 @@ function initMenuScrollSpy() {
   const requestUpdate = () => {
     if (!rafId) rafId = requestAnimationFrame(update);
   };
+  const layout = index.closest(".menu_layout");
+  const measureOffset = () => {
+    layout.style.setProperty("--menu-index-height", `${index.offsetHeight}px`);
+    offset = parseFloat(getComputedStyle(sectionMap[0].el).scrollMarginTop);
+    requestUpdate();
+  };
+  const resizeObserver = new ResizeObserver(measureOffset);
+  resizeObserver.observe(index);
+  measureOffset();
 
   links.forEach((link, i) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       const entry = sectionMap[i];
       if (!entry) return;
-      entry.el.scrollIntoView({ behavior: "smooth", block: "start" });
+      entry.el.scrollIntoView({ behavior: reducedMotion.matches ? "instant" : "smooth", block: "start" });
       setActive(entry.id);
-      lockUntil = performance.now() + 800;
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        scrollTimer = 0;
+        requestUpdate();
+      }, 800);
     });
   });
 
@@ -743,11 +812,17 @@ function initMenuScrollSpy() {
 
   window.__mesaMenuSpyCleanup = () => {
     if (rafId) cancelAnimationFrame(rafId);
+    clearTimeout(scrollTimer);
+    resizeObserver.disconnect();
     window.removeEventListener("scroll", requestUpdate);
+    window.removeEventListener("resize", measureOffset);
   };
+  window.addEventListener("resize", measureOffset);
 }
 
 function bindDiningMenu() {
+  window.__mesaMenuSpyCleanup?.();
+  window.__mesaMenuSpyCleanup = null;
   const root = document.querySelector("[data-menu-root]");
   if (!root) return;
 
@@ -757,8 +832,9 @@ function bindDiningMenu() {
       if (!response.ok || body.error) {
         throw new Error(body.message || body.error || "Menu service unavailable");
       }
+      if (!root.isConnected) return;
       root.innerHTML = renderDiningMenu(body);
-      requestAnimationFrame(() => initMenuScrollSpy());
+      initMenuScrollSpy();
     })
     .catch(() => {
       root.innerHTML = '<p class="menu_empty">Carte boissons momentanément indisponible.</p>';
@@ -814,6 +890,7 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-link]").forEach((link) => {
     link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin) return;
       event.preventDefault();
@@ -827,9 +904,8 @@ function bindInteractions() {
 
       if (!isSamePath) {
         render();
-      } else {
-        scrollToRouteTarget(url.hash);
       }
+      scrollToRouteTarget(url.hash);
       closeNavMenu();
     });
   });
@@ -848,6 +924,7 @@ function bindInteractions() {
 
   if (window.__mesaHeroCleanup) window.__mesaHeroCleanup();
   const heroCleanups = [];
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   document.querySelectorAll("[data-hero]").forEach((heroEl) => {
     const slides = [...heroEl.querySelectorAll(".hero_el")];
     const thumbs = [...heroEl.querySelectorAll("[data-hero-thumb]")];
@@ -872,10 +949,10 @@ function bindInteractions() {
       if (thumb && thumbTrack) {
         thumbTrack.scrollTo({
           left: thumb.offsetLeft - (thumbTrack.clientWidth - thumb.offsetWidth) / 2,
-          behavior: "smooth"
+          behavior: reducedMotion.matches ? "instant" : "smooth"
         });
       }
-      heroEl.style.setProperty("--prog", "0%");
+      heroEl.style.setProperty("--prog", reducedMotion.matches ? "100%" : "0%");
     };
     thumbs.forEach((thumb, index) => thumb.addEventListener("click", () => set(index)));
     const tick = (now) => {
@@ -884,8 +961,18 @@ function bindInteractions() {
       if (progress >= 1 && slides.length > 1) set((active + 1) % slides.length);
       rafId = requestAnimationFrame(tick);
     };
-    rafId = requestAnimationFrame(tick);
-    heroCleanups.push(() => cancelAnimationFrame(rafId));
+    const updateMotion = () => {
+      cancelAnimationFrame(rafId);
+      startedAt = performance.now();
+      heroEl.style.setProperty("--prog", reducedMotion.matches ? "100%" : "0%");
+      if (!reducedMotion.matches) rafId = requestAnimationFrame(tick);
+    };
+    updateMotion();
+    reducedMotion.addEventListener("change", updateMotion);
+    heroCleanups.push(() => {
+      cancelAnimationFrame(rafId);
+      reducedMotion.removeEventListener("change", updateMotion);
+    });
   });
   window.__mesaHeroCleanup = () => {
     heroCleanups.forEach((cleanup) => cleanup());
@@ -914,15 +1001,14 @@ function bindInteractions() {
     slider.querySelector("[data-next]")?.addEventListener("click", () => set(active + 1));
   });
 
-  document.querySelectorAll(".features-open, [data-feature-modal]").forEach((open) => {
-    open.addEventListener("click", () => document.querySelector(".feature_modal")?.classList.add("A"));
-  });
-  document.querySelectorAll(".modal_x, .modal-close").forEach((close) => close.addEventListener("click", () => close.closest(".modal")?.classList.remove("A")));
-
-  document.querySelector(".newsletter")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    event.currentTarget.classList.add("sent");
-  });
+  const featureModal = document.querySelector(".feature_modal");
+  if (featureModal) {
+    keepFocusInDialog(featureModal);
+    document.querySelectorAll(".features-open, [data-feature-modal]").forEach((open) => {
+      open.addEventListener("click", () => featureModal.showModal());
+    });
+    featureModal.querySelector(".modal_x").addEventListener("click", () => featureModal.close());
+  }
 
   initTextReveal();
 
@@ -1368,5 +1454,9 @@ function initMediaLoadedState() {
   });
 }
 
-window.addEventListener("popstate", render);
+window.addEventListener("popstate", () => {
+  if (renderedPath !== window.location.pathname) render();
+  if (window.location.hash) requestAnimationFrame(() => scrollToRouteTarget(window.location.hash));
+});
 render();
+if (window.location.hash) scrollToRouteTarget(window.location.hash);
