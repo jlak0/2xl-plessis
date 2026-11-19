@@ -1,5 +1,6 @@
 import {
   asset,
+  buildReservationTimeGroups,
   caseStudies,
   clients,
   getRoute,
@@ -21,6 +22,11 @@ import {
   networkReservationState,
   reservationCopy
 } from "./reservation.js";
+import {
+  buildDiningMenuUrl,
+  diningMenuRestaurantId,
+  renderDiningMenu
+} from "./menu.js";
 
 const app = document.querySelector("#app");
 const restaurantName = "2XL";
@@ -30,6 +36,19 @@ const restaurantAddressLink = `https://www.google.com/maps/search/?api=1&query=$
 const logo = `
   <img src="${asset("images/2xl-logo.png")}" alt="${restaurantName} Restaurant" loading="eager" decoding="async" />`;
 
+const partySizeOptions = Array.from({ length: 50 }, (_, index) => {
+  const value = index + 1;
+  const label = value === 1 ? "1 personne" : `${value} personnes`;
+  return `<option value="${value}"${value === 2 ? " selected" : ""}>${label}</option>`;
+}).join("");
+
+const reservationTimeOptions = buildReservationTimeGroups()
+  .map((group) => `
+    <optgroup label="${group.name}">
+      ${group.times.map((time) => `<option value="${time}">${time}</option>`).join("")}
+    </optgroup>`)
+  .join("");
+
 function media(item, className = "") {
   const src = asset(item.src || item.image);
   if (item.type === "video") {
@@ -38,25 +57,29 @@ function media(item, className = "") {
   return `<img class="${className}" src="${src}" alt="${item.alt || item.title || ""}" loading="${item.eager ? "eager" : "lazy"}" decoding="async" ${item.eager ? 'fetchpriority="high"' : ""} />`;
 }
 
-function button(label, href = "#", extra = "") {
+function button(label, href = "#", extra = "", attrs = "") {
   const tag = href === "#" ? "button" : "a";
   const attr = href === "#" ? "type=\"button\"" : `href="${href}"`;
-  return `<${tag} ${attr} class="Abtn ${extra}"><span class="Abtn_h"><span class="Abtn_t">${label}</span></span></${tag}>`;
+  return `<${tag} ${attr}${attrs ? ` ${attrs}` : ""} class="Abtn ${extra}"><span class="Abtn_h"><span class="Abtn_t">${label}</span></span></${tag}>`;
 }
 
 function nav() {
   return `
     <nav class="nav grid-vw">
       <h1 class="nav_logo"><a href="/" data-link aria-label="${restaurantName}">${logo}</a></h1>
-      <div class="nav_menu">
-        <a href="/work" data-link>Stations</a>
+      <button type="button" class="nav_menu_toggle" data-nav-menu-toggle aria-expanded="false" aria-controls="primary-navigation">Menu</button>
+      <div class="nav_menu" id="primary-navigation" data-nav-menu>
+        <a href="/work" data-link>Buffets</a>
+        <a href="/menu" data-link>Boissons</a>
         <a href="/info" data-link>Info</a>
+        <a href="/info#tarifs" data-link>Tarifs</a>
         <button type="button" data-reservation-open>Réserver</button>
         <button type="button" data-contact>Contact</button>
       </div>
       <div class="nav_contact" data-contact-panel>
-        <p>E-mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
-        <p>Téléphone <a href="tel:+15550101988">+1 555 010 1988</a></p>
+        <button type="button" class="nav_contact_close" data-contact-close aria-label="Fermer les coordonnées">×</button>
+        ${/* <p>E-mail <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a></p>
+        <p>Téléphone <a href="tel:+15550101988">+1 555 010 1988</a></p> */ ""}
         <p>Adresse <a href="${restaurantAddressLink}" target="_blank" rel="noreferrer">${restaurantAddress}</a></p>
       </div>
     </nav>`;
@@ -79,38 +102,25 @@ function footer() {
           </form>
           <div>
             <a href="${restaurantAddressLink}" target="_blank" rel="noreferrer">${restaurantAddress}</a>
-            <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a>
+            ${/* <a href="mailto:hello@mesabuffet.example">hello@mesabuffet.example</a>
             <a href="tel:+15550101988">+1 555 010 1988</a>
-            <a href="tel:+15550101989">+1 555 010 1989</a>
+            <a href="tel:+15550101989">+1 555 010 1989</a> */ ""}
           </div>
-          <div><a href="/" data-link>Accueil</a><a href="/work" data-link>Stations</a><a href="/info" data-link>Info</a></div>
-          <div><a href="/product/breakfast" data-link>Petit-déjeuner</a><a href="/product/hot-line" data-link>Déjeuner</a><a href="/product/dessert" data-link>Dessert</a></div>
+          <div><a href="/" data-link>Accueil</a><a href="/work" data-link>Buffets</a><a href="/info" data-link>Info</a></div>
+          <div class="foot_hours">
+            <p>Horaires</p>
+            ${openingHours.map((item) => `
+              <div>
+                <b>${item.name}</b>
+                <span>${item.hours}</span>
+                <small>${item.note}</small>
+              </div>`).join("")}
+          </div>
           <p class="copy">Tous droits réservés © 2026</p>
           <a href="/">Buffet frais en libre-service</a>
         </div>
       </div>
     </footer>`;
-}
-
-function cookieUi() {
-  return `
-    <div class="coo" data-cookie>
-      <div class="coo_btm">
-        <p>Nos cookies facilitent votre visite</p>
-        <button type="button" data-cookie-accept>Accepter</button>
-        <button type="button" data-cookie-manage>Gérer</button>
-      </div>
-      <div class="modal cookie_modal" data-cookie-modal>
-        <div class="modal_h">
-          <h2>Préférences cookies</h2>
-          <p>Les cookies nécessaires sont toujours actifs. Les cookies d'analyse sont optionnels dans cette démo.</p>
-          <label class="toggle"><input type="checkbox" /> Cookies d'analyse</label>
-          ${button("Valider la sélection", "#", "modal-close")}
-          ${button("Tout accepter", "#", "modal-close")}
-          <button class="modal_x" type="button" aria-label="Fermer">×</button>
-        </div>
-      </div>
-    </div>`;
 }
 
 function reservationModal() {
@@ -132,8 +142,8 @@ function reservationModal() {
             <p class="p1">Quand venir ?</p>
             <label>Date<input name="reservationDate" type="date" required aria-describedby="reservationDate-error" /></label>
             <p class="reservation_field_error" id="reservationDate-error" data-reservation-field-error="reservationDate" hidden></p>
-            <label>Heure<input name="reservationTime" type="time" required /></label>
-            <label>Personnes<input name="partySize" type="number" min="1" max="300" value="2" required aria-describedby="partySize-error" /></label>
+            <label>Heure<select name="reservationTime" required>${reservationTimeOptions}</select></label>
+            <label>Personnes<select name="partySize" required aria-describedby="partySize-error">${partySizeOptions}</select></label>
             <p class="reservation_field_error" id="partySize-error" data-reservation-field-error="partySize" hidden></p>
             <p class="reservation_error" data-reservation-error role="alert" aria-live="polite"></p>
             <button type="button" class="Abtn reservation_next" data-reservation-next><span class="Abtn_h"><span class="Abtn_t">Continuer</span></span></button>
@@ -166,6 +176,13 @@ function reservationModal() {
     </div>`;
 }
 
+function holidayBanner() {
+  return `
+    <aside class="holiday_banner" aria-label="Tarif des soirées de fête">
+      <p><span>Les <strong>24 et 31 décembre au soir</strong></span><span>Buffet à volonté · <strong>29,90 €</strong></span></p>
+    </aside>`;
+}
+
 function hero({ eyebrow = "", title, slides, cta = "En savoir plus", href = "#anchorHome-1", product = false }) {
   return `
     <section class="hero ${product ? "product_hero" : ""}" data-hero>
@@ -175,7 +192,7 @@ function hero({ eyebrow = "", title, slides, cta = "En savoir plus", href = "#an
       <div class="grid hero_info reveal">
         ${eyebrow ? `<p class="p1">${eyebrow}</p>` : ""}
         <h2 class="h1">${title}</h2>
-        <div>${button(cta, href)}</div>
+        <div>${href && !href.startsWith("mailto:") ? button(cta, href) : ""}</div>
       </div>
       <div class="hero_pag">
         <div class="hold">
@@ -231,7 +248,7 @@ function homeCardsStack(items) {
     <section class="home_cards">
       <div class="grid">
         <div class="home_cards_tt reveal">
-          <h2 class="h1">Explorer nos stations</h2>
+          <h2 class="h1">Explorer nos buffets</h2>
         </div>
         <div class="home_cards_stck">
           <div class="home_cards_sld reveal" data-card-stack>
@@ -282,25 +299,38 @@ function cardsSection(title, text, items, options = {}) {
           <h2 class="h1">${title}</h2>
           ${text ? `<p class="p1">${text}</p>` : ""}
         </div>
-        <div class="browse_posts ${options.collapsed ? "collapsed" : ""}">
+        <div class="browse_posts">
           <div class="browse_hold">${items.map(card).join("")}</div>
         </div>
-        ${options.filters ? `
-          <div class="browse_btn">
-            <div class="browse_cats">${options.filters.map((filter) => `<button type="button" data-filter="${filter}">${filter}</button>`).join("")}<button type="button" data-filter="all">all</button></div>
-            ${button("Afficher plus", "#", "browse-more")}
-            ${button("Filtres", "#", "browse-filters")}
-          </div>` : options.collapsed ? `<div class="browse_btn">${button("Afficher plus", "#", "browse-more")}</div>` : ""}
       </div>
     </section>`;
 }
 
 function pricingSection() {
+  const lunch = pricing.find((service) => service.name === "Déjeuner");
+  const dinner = pricing.find((service) => service.name === "Dîner");
+  const pricingRows = [...new Set([...(lunch?.rows || []), ...(dinner?.rows || [])].map((row) => row.period))]
+    .map((period) => ({
+      period,
+      lunch: lunch?.rows.find((row) => row.period === period)?.adult || "—",
+      dinner: dinner?.rows.find((row) => row.period === period)?.adult || "—"
+    }))
+    .reduce((rows, row) => {
+      const previous = rows.at(-1);
+      if (previous && previous.lunch === row.lunch && previous.dinner === row.dinner) {
+        previous.period = `${previous.period}, ${row.period}`;
+      } else {
+        rows.push({ ...row });
+      }
+      return rows;
+    }, []);
+  const childReference = lunch?.rows[0] || dinner?.rows[0];
+
   return `
     <section class="pricing grid-vw reveal" id="tarifs">
       <div class="top">
         <h2 class="h1">Tarifs</h2>
-        <p class="p1">Prix et horaires du buffet pour le déjeuner et le dîner.</p>
+        <p class="p1">Prix buffet, avec les horaires affichés séparément pour garder la lecture rapide.</p>
         <div class="opening_hours" aria-label="Horaires d'ouverture">
           <div class="opening_hours_grid">
             ${openingHours.map((item) => `
@@ -312,29 +342,34 @@ function pricingSection() {
           </div>
         </div>
       </div>
-      <div class="pricing_grid">
-        ${pricing.map((service) => `
-          <article class="pricing_service">
-            <div class="pricing_head">
-              <h3 class="h2">${service.name}</h3>
-              <p>${service.hours}</p>
-            </div>
-            <div class="pricing_table" role="table" aria-label="Tarifs ${service.name}">
-              <div class="pricing_row pricing_header" role="row">
-                <span role="columnheader">Jour</span>
-                <span role="columnheader">Adulte</span>
-                <span role="columnheader">Enfant<br><small>-1.4M et -12ans</small></span>
-                <span role="columnheader">Enfant<br><small>-1M et -5ans</small></span>
-              </div>
-              ${service.rows.map((row) => `
-                <div class="pricing_row" role="row">
-                  <span role="cell">${row.period}${row.note ? `<small>${row.note}</small>` : ""}</span>
-                  <b role="cell" data-label="Adulte" data-short="Adulte">${row.adult}</b>
-                  <b role="cell" data-label="Enfant -1.4M et -12ans" data-short="-1.4M / -12ans">${row.childUnderTwelve}</b>
-                  <b role="cell" data-label="Enfant -1M et -5ans" data-short="-1M / -5ans">${row.childUnderOneMeter}</b>
-                </div>`).join("")}
-            </div>
-          </article>`).join("")}
+      <div class="pricing_compact">
+        <div class="pricing_table pricing_table_compact" role="table" aria-label="Tarifs adultes">
+          <div class="pricing_row pricing_header" role="row">
+            <span role="columnheader">Jour</span>
+            <span role="columnheader">Midi</span>
+            <span role="columnheader">Soir</span>
+          </div>
+          ${pricingRows.map((row) => `
+            <div class="pricing_row" role="row">
+              <span role="cell">${row.period}</span>
+              <b role="cell" data-label="Midi" data-short="Midi">${row.lunch}</b>
+              <b role="cell" data-label="Soir" data-short="Soir">${row.dinner}</b>
+            </div>`).join("")}
+        </div>
+        <div class="pricing_child_prices" aria-label="Tarifs enfants">
+          <article>
+            <span>Enfant -1m40</span>
+            <b>${childReference?.childUnderOneForty || "—"}</b>
+          </article>
+          <article>
+            <span>Enfant -1m10</span>
+            <b>${childReference?.childUnderOneTen || "—"}</b>
+          </article>
+          <article>
+            <span>Moins de 3 ans</span>
+            <b>Gratuit</b>
+          </article>
+        </div>
       </div>
       <div class="pricing_notes">
         ${pricingNotes.map((detail) => `<p>${detail}</p>`).join("")}
@@ -350,12 +385,12 @@ function stackedCases() {
           <div class="txt_el A">
             <h2 class="h1">Des choix frais</h2>
             <h2 class="h1">Pour chaque assiette</h2>
-            ${button("Nous contacter", "mailto:hello@mesabuffet.example")}
+            ${/* button("Nous contacter", "mailto:hello@mesabuffet.example") */ ""}
           </div>
           <div class="txt_el">
             <h2 class="h1">Un parcours fluide</h2>
             <h2 class="h1">Du comptoir à la table</h2>
-            ${button("Préparer une visite", "mailto:hello@mesabuffet.example")}
+            ${button("Préparer une visite", "#", "", "data-reservation-open")}
           </div>
         </div>
       </div>
@@ -374,8 +409,8 @@ function stackedCases() {
 function homePage() {
   return `
     <main class="home">
-      ${hero({ title: "Buffet en libre-service", slides: homeHero, cta: "Voir les stations" })}
-      ${textBlock(`${restaurantName} est un restaurant moderne et lumineux, organisé autour de stations fraîches, d'un réassort régulier et de la liberté de composer chaque assiette à votre façon.`, "anchorHome-1")}
+      ${hero({ title: "Buffet en libre-service", slides: homeHero, cta: "Voir les buffets" })}
+      ${textBlock(`${restaurantName} est un restaurant moderne et lumineux, organisé autour de buffets frais, d'un réassort régulier et de la liberté de composer chaque assiette à votre façon.`, "anchorHome-1")}
       ${featureSlider(homeSlider)}
       ${homeCardsStack(homeCards)}
       ${stackedCases()}
@@ -386,7 +421,7 @@ function homePage() {
 function workPage() {
   return `
     <main class="work">
-      ${cardsSection("Explorer nos stations", "Une carte pratique du buffet : petit-déjeuner, bar frais, plats chauds, comptoirs du monde, grill en direct, boissons et desserts.", products, { filters: ["Petit-déjeuner", "Frais", "Plats chauds", "Dîner", "Famille"], collapsed: true })}
+      ${cardsSection("Explorer nos buffets", "Une carte pratique du buffet : petit-déjeuner, bar frais, plats chauds, comptoirs du monde, grill en direct, boissons et desserts.", products)}
       ${featureSlider(workSteps, "work_slider")}
       <section class="method grid-vw reveal">
         <h2 class="h1">Le rythme du service</h2>
@@ -411,14 +446,34 @@ function infoPage() {
       </section>
       ${textBlock(`${restaurantName} est pensé pour une abondance quotidienne : une salle nette, des comptoirs généreux, une circulation claire et des plats fraîchement préparés du début à la fin du service.`)}
       ${pricingSection()}
-      ${featureSlider([{ image: "images/generated/buffet-layout.png", title: "Chaque station facilite le choix, le réassort et la circulation" }])}
+      ${featureSlider([{ image: "images/2.jpg", title: "Chaque station facilite le choix, le réassort et la circulation" }])}
       ${cardsSection("Notre équipe", "La cuisine et la salle travaillent ensemble pour garder le buffet plein, frais et simple à parcourir.", team)}
       ${featureSlider(clients.map((item) => ({ image: item.image, title: item.title, text: item.text })), "cards_slider")}
       ${cardsSection("Actualités", "", [
-        { image: "images/generated/buffet-global.png", name: "Menu", title: "Week-end Table du Monde", description: "Des plats du monde en rotation rejoignent le buffet du soir.", href: "/product/world-table" },
-        { image: "images/generated/buffet-breakfast.png", name: "Matin", title: "Petit-déjeuner dès l'ouverture", description: "Café frais, viennoiseries et fruits dès 7 h.", href: "/product/breakfast" },
-        { image: "images/generated/buffet-dessert.png", name: "Dessert", title: "Comptoir sucré", description: "Des petits desserts remis en place tout au long du service.", href: "/product/dessert" }
-      ], { filters: ["Menu", "Matin", "Dessert"] })}
+    { image: "images/4.jpg", name: "Menu", title: "Week-end Table du Monde", description: "Des plats du monde en rotation rejoignent le buffet du soir.", href: "/product/world-table" },
+    { image: "images/1.jpg", name: "Matin", title: "Petit-déjeuner dès l'ouverture", description: "Café frais, viennoiseries et fruits dès 7 h.", href: "/product/breakfast" },
+    { image: "images/1.jpg", name: "Dessert", title: "Comptoir sucré", description: "Des petits desserts remis en place tout au long du service.", href: "/product/dessert" }
+  ])}
+      ${footer()}
+    </main>`;
+}
+
+function menuPage() {
+  return `
+    <main class="menu_page">
+      <section class="menu_hero grid-vw reveal">
+        <div>
+          <p class="p1">Carte boissons</p>
+          <h2 class="h1">Boissons à table</h2>
+        </div>
+        <div class="menu_hero_note">
+          <span>Carte en direct</span>
+          <p>Uniquement les boissons disponibles au restaurant aujourd'hui.</p>
+        </div>
+      </section>
+      <section class="menu_panel grid-vw-s reveal" data-menu-root>
+        <p class="menu_loading">Chargement de la carte...</p>
+      </section>
       ${footer()}
     </main>`;
 }
@@ -426,8 +481,8 @@ function infoPage() {
 function productPage(product) {
   const gallery = product.slug === "hot-line" ? productGallery : [
     { type: "image", src: product.image, alt: product.name },
-    { type: "image", src: "images/generated/buffet-hero.png", alt: product.name },
-    { type: "image", src: "images/generated/buffet-layout.png", alt: product.name }
+    { type: "image", src: "images/1.jpg", alt: product.name },
+    { type: "image", src: "images/2.jpg", alt: product.name }
   ];
   return `
     <main class="product">
@@ -440,21 +495,21 @@ function productPage(product) {
           <p class="p1">Capacité, circulation et notes de service pour ce comptoir.</p>
         </div>
         <div class="render">
-          <img src="${asset(product.slug === "hot-line" ? "images/generated/buffet-layout.png" : product.image)}" alt="${product.name} station detail" />
+          <img src="${asset(product.slug === "hot-line" ? "images/2.jpg" : product.image)}" alt="${product.name} station detail" />
           <button type="button" class="plus" data-feature-modal>+</button>
         </div>
         <div class="btm">
           ${button("Détails", "#", "features-open")}
-          <a class="Abtn" href="mailto:hello@mesabuffet.example"><span class="Abtn_h"><span class="Abtn_t">Préparer une visite de groupe</span></span></a>
+          ${/* <a class="Abtn" href="mailto:hello@mesabuffet.example"><span class="Abtn_h"><span class="Abtn_t">Préparer une visite de groupe</span></span></a> */ ""}
         </div>
       </section>
       ${featureSlider(homeCards.map((item) => ({ image: item.image, title: item.title, text: item.description })), "cards_slider")}
-      <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Préparer votre prochain repas</p>${button("Contacter le restaurant", "mailto:hello@mesabuffet.example")}</div></section>
-      ${cardsSection("Explorer d'autres stations", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
+      ${/* <section class="Ccta reveal"><div class="grid-vw"><p class="h1">Préparer votre prochain repas</p>${button("Contacter le restaurant", "mailto:hello@mesabuffet.example")}</div></section> */ ""}
+      ${cardsSection("Explorer d'autres buffets", "", products.filter((item) => item.slug !== product.slug).slice(0, 2))}
       <div class="modal feature_modal">
         <div class="modal_h">
           <h2>Détails ${product.name}</h2>
-          <img src="${asset(product.slug === "hot-line" ? "images/generated/buffet-layout.png" : product.image)}" alt="${product.name}" />
+          <img src="${asset(product.slug === "hot-line" ? "images/2.jpg" : product.image)}" alt="${product.name}" />
           <ul>${["Horaires", "Comptoir", "Offre principale", "Note client"].map((label, index) => `<li><span>${label}</span><b>${product.stats[index]}</b></li>`).join("")}</ul>
           <button class="modal_x" type="button" aria-label="Fermer">×</button>
         </div>
@@ -465,10 +520,23 @@ function productPage(product) {
 
 function render() {
   const route = getRoute(window.location.pathname);
-  const body = route.page === "home" ? homePage() : route.page === "work" ? workPage() : route.page === "info" ? infoPage() : productPage(route.product);
-  app.innerHTML = `${nav()}${body}${reservationModal()}${cookieUi()}`;
+  const body = route.page === "home" ? homePage() : route.page === "work" ? workPage() : route.page === "info" ? infoPage() : route.page === "menu" ? menuPage() : productPage(route.product);
+  app.innerHTML = `${holidayBanner()}${nav()}${body}${reservationModal()}`;
   bindInteractions();
   requestAnimationFrame(() => document.body.classList.add("loaded"));
+}
+
+function scrollToRouteTarget(hash = "") {
+  const root = document.documentElement;
+  const previousScrollBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = "auto";
+  const target = hash ? document.querySelector(hash) : null;
+  if (target) {
+    target.scrollIntoView({ block: "start" });
+  } else {
+    window.scrollTo(0, 0);
+  }
+  root.style.scrollBehavior = previousScrollBehavior;
 }
 
 function bindReservation() {
@@ -602,22 +670,181 @@ function bindReservation() {
   });
 }
 
+function initMenuScrollSpy() {
+  if (window.__mesaMenuSpyCleanup) {
+    window.__mesaMenuSpyCleanup();
+    window.__mesaMenuSpyCleanup = null;
+  }
+
+  const index = document.querySelector(".menu_index");
+  if (!index) return;
+
+  const links = [...index.querySelectorAll("a")];
+  const sectionMap = [];
+  links.forEach((link) => {
+    const id = link.getAttribute("href")?.replace("#", "");
+    const el = id ? document.getElementById(id) : null;
+    if (el) sectionMap.push({ id, el, link });
+  });
+
+  if (!sectionMap.length) return;
+
+  let activeId = "";
+  let rafId = 0;
+  let lockUntil = 0;
+
+  const setActive = (id) => {
+    if (id === activeId) return;
+    activeId = id;
+    sectionMap.forEach((item) => {
+      const isActive = item.id === id;
+      item.link.classList.toggle("active", isActive);
+      if (isActive && index.scrollWidth > index.clientWidth) {
+        const scrollLeft = item.link.offsetLeft - (index.clientWidth - item.link.offsetWidth) / 2;
+        index.scrollTo({ left: scrollLeft, behavior: "smooth" });
+      }
+    });
+  };
+
+  const OFFSET = 140;
+
+  const update = () => {
+    rafId = 0;
+    if (performance.now() < lockUntil) return;
+
+    let current = sectionMap[0];
+    for (let i = sectionMap.length - 1; i >= 0; i--) {
+      const rect = sectionMap[i].el.getBoundingClientRect();
+      if (rect.top <= OFFSET) {
+        current = sectionMap[i];
+        break;
+      }
+    }
+    if (current) setActive(current.id);
+  };
+
+  const requestUpdate = () => {
+    if (!rafId) rafId = requestAnimationFrame(update);
+  };
+
+  links.forEach((link, i) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const entry = sectionMap[i];
+      if (!entry) return;
+      entry.el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActive(entry.id);
+      lockUntil = performance.now() + 800;
+    });
+  });
+
+  update();
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+
+  window.__mesaMenuSpyCleanup = () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    window.removeEventListener("scroll", requestUpdate);
+  };
+}
+
+function bindDiningMenu() {
+  const root = document.querySelector("[data-menu-root]");
+  if (!root) return;
+
+  fetch(buildDiningMenuUrl({ restaurantId: diningMenuRestaurantId }))
+    .then(async (response) => {
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || body.error) {
+        throw new Error(body.message || body.error || "Menu service unavailable");
+      }
+      root.innerHTML = renderDiningMenu(body);
+      requestAnimationFrame(() => initMenuScrollSpy());
+    })
+    .catch(() => {
+      root.innerHTML = '<p class="menu_empty">Carte boissons momentanément indisponible.</p>';
+    });
+}
+
+function bindFooterPointerEvents() {
+  if (window.__mesaFooterPointerCleanup) window.__mesaFooterPointerCleanup();
+
+  const footer = document.querySelector(".foot");
+  if (!footer) {
+    window.__mesaFooterPointerCleanup = null;
+    return;
+  }
+
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    footer.classList.toggle("footer-active", footer.getBoundingClientRect().top <= -window.innerHeight + 1);
+  };
+  const requestUpdate = () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  };
+
+  update();
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+  window.addEventListener("resize", requestUpdate);
+  window.__mesaFooterPointerCleanup = () => {
+    window.removeEventListener("scroll", requestUpdate);
+    window.removeEventListener("resize", requestUpdate);
+  };
+}
+
 function bindInteractions() {
+  const navElement = document.querySelector(".nav");
+  const navToggle = document.querySelector("[data-nav-menu-toggle]");
+  const navMenu = document.querySelector("[data-nav-menu]");
+  const closeNavMenu = () => {
+    navElement?.classList.remove("menu-open");
+    navToggle?.setAttribute("aria-expanded", "false");
+  };
+
+  navToggle?.addEventListener("click", () => {
+    const isOpen = navElement?.classList.toggle("menu-open") || false;
+    navToggle.setAttribute("aria-expanded", String(isOpen));
+  });
+  document.querySelector("[data-contact-panel]")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
   document.querySelectorAll("[data-link]").forEach((link) => {
     link.addEventListener("click", (event) => {
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin) return;
       event.preventDefault();
-      history.pushState({}, "", url.pathname);
-      document.body.classList.remove("loaded");
-      setTimeout(render, 180);
+      const currentPath = `${window.location.pathname}${window.location.hash}`;
+      const nextPath = `${url.pathname}${url.hash}`;
+      const isSamePath = url.pathname === window.location.pathname;
+
+      if (nextPath !== currentPath) {
+        history.pushState({}, "", nextPath);
+      }
+
+      if (!isSamePath) {
+        render();
+      } else {
+        scrollToRouteTarget(url.hash);
+      }
+      closeNavMenu();
     });
   });
 
   document.querySelector("[data-contact]")?.addEventListener("click", () => {
     document.querySelector("[data-contact-panel]")?.classList.toggle("A");
+    closeNavMenu();
   });
+  document.querySelector("[data-contact-close]")?.addEventListener("click", () => {
+    document.querySelector("[data-contact-panel]")?.classList.remove("A");
+  });
+  navMenu?.querySelector("[data-reservation-open]")?.addEventListener("click", closeNavMenu);
   bindReservation();
+  bindDiningMenu();
+  bindFooterPointerEvents();
 
   if (window.__mesaHeroCleanup) window.__mesaHeroCleanup();
   const heroCleanups = [];
@@ -687,29 +914,10 @@ function bindInteractions() {
     slider.querySelector("[data-next]")?.addEventListener("click", () => set(active + 1));
   });
 
-  document.querySelectorAll("[data-browse]").forEach((browse) => {
-    browse.querySelector(".browse-more")?.addEventListener("click", () => browse.classList.toggle("expanded"));
-    browse.querySelector(".browse-filters")?.addEventListener("click", () => browse.classList.toggle("filters-open"));
-    browse.querySelectorAll("[data-filter]").forEach((filterButton) => {
-      filterButton.addEventListener("click", () => {
-        const value = filterButton.dataset.filter;
-        browse.querySelectorAll(".Acard").forEach((item) => item.classList.toggle("hide", value !== "all" && !item.dataset.cat.includes(value)));
-      });
-    });
-  });
-
   document.querySelectorAll(".features-open, [data-feature-modal]").forEach((open) => {
     open.addEventListener("click", () => document.querySelector(".feature_modal")?.classList.add("A"));
   });
   document.querySelectorAll(".modal_x, .modal-close").forEach((close) => close.addEventListener("click", () => close.closest(".modal")?.classList.remove("A")));
-
-  const cookie = document.querySelector("[data-cookie]");
-  if (localStorage.getItem("mesaCookieOk")) cookie?.remove();
-  cookie?.querySelector("[data-cookie-accept]")?.addEventListener("click", () => {
-    localStorage.setItem("mesaCookieOk", "1");
-    cookie.remove();
-  });
-  cookie?.querySelector("[data-cookie-manage]")?.addEventListener("click", () => cookie.querySelector("[data-cookie-modal]")?.classList.add("A"));
 
   document.querySelector(".newsletter")?.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -795,7 +1003,7 @@ function initHomeScrollSlider() {
 
     slides.forEach((slide) => {
       const img = slide.querySelector("img");
-      if (img?.decode) img.decode().catch(() => {});
+      if (img?.decode) img.decode().catch(() => { });
     });
 
     const placeSlide = (slide, x, instant = false) => {
